@@ -1,0 +1,6 @@
+# Folders
+build
+.vscode
+
+# File extensions
+*.code-workspace
