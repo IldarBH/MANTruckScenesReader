@@ -10,4 +10,5 @@ target_include_directories(example
     ${PCL_INCLUDE_DIRS})
 target_link_libraries(example 
   PRIVATE 
-    ${PCL_LIBRARIES})
+    ${PCL_LIBRARIES}
+    MANTruckDataset)

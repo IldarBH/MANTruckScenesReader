@@ -9,6 +9,8 @@ find_package(PCL 1.14.0 EXACT REQUIRED COMPONENTS common io)
 ###########################################################################
 
 set(HEADERS
+  include/MANTruckDataset/Sensor.hpp
+  include/MANTruckDataset/Lidar.hpp
   include/MANTruckDataset/MANTruckDataset.hpp
   # Add other header files here
 )
