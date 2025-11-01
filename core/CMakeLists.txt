@@ -12,63 +12,69 @@ set(HEADERS
   include/MANTruckDataset/Sensor.hpp
   include/MANTruckDataset/Lidar.hpp
   include/MANTruckDataset/MANTruckDataset.hpp
-  # Add other header files here
 )
 set(SOURCES
   src/MANTruckDataset/MANTruckDataset.cpp
-  # Add other source files here
 )
-add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
+add_library(${PROJECT_NAME} 
+  SHARED 
+    ${SOURCES} 
+    ${HEADERS}
+)
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
     ${PCL_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
-  PUBLIC
+  PRIVATE
     ${PCL_LIBRARIES}
+)
+set_target_properties(${PROJECT_NAME} 
+  PROPERTIES 
+  VERSION ${PROJECT_VERSION}
+  CMAKE_CXX_STANDARD 20
+  CMAKE_CXX_STANDARD_REQUIRED ON
+  CMAKE_CXX_EXTENSIONS OFF
+  PUBLIC_HEADER "${HEADERS}"
 )
 
 ###########################################################################
 ##                             INSTALL LIBRIARY                          ##
 ###########################################################################
 
+include(GNUInstallDirs)
+
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}Targets
-  LIBRARY DESTINATION lib
-          COMPONENT libraries
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
-install(
-    DIRECTORY include/${PROJECT_NAME}
-    DESTINATION include
-    COMPONENT headers
-)
+
+install(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+
 install(
   EXPORT ${PROJECT_NAME}Targets
   FILE "${PROJECT_NAME}Targets.cmake"
-  DESTINATION lib/cmake/${PROJECT_NAME}
-  COMPONENT headers
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
+
 ###########################################################################
 ##                   CREATE / INSTALL CMAKE CONFIGS                      ##
 ###########################################################################
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-  INSTALL_DESTINATION "lib/cmake/${PROJECT_NAME}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
 )
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY AnyNewerVersion
-)
+
 # Install the config and version files
 install(
   FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-  DESTINATION "lib/cmake/${PROJECT_NAME}"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
 )
