@@ -8,6 +8,8 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 
+#include <string_view>
+
 struct EIGEN_ALIGN16 PointXYZIT
 {
   PCL_ADD_POINT4D;                  // preferred way of adding a XYZ+padding
@@ -20,10 +22,13 @@ POINT_CLOUD_REGISTER_POINT_STRUCT (PointXYZIT,
   (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity)(float, timestamp, timestamp))
 
 using PointCloud = pcl::PointCloud<PointXYZIT>;
+
+constexpr std::string_view LIDAR_MODALITY = "LIDAR";
+
 class Lidar : public SensorBase<PointCloud> {
 public:
   Lidar(const std::string token, const std::string channel)
-  : SensorBase(token, channel)
+  : SensorBase(token, channel, LIDAR_MODALITY)
   {
 
   };

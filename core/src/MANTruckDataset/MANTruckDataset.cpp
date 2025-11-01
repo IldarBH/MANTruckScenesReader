@@ -1,4 +1,5 @@
 #include "MANTruckDataset/MANTruckDataset.hpp"
+#include "MANTruckDataset/Lidar.hpp"
 
 #include <iostream>
 #include <string_view>
@@ -33,4 +34,12 @@ MANTruckDataset::MANTruckDataset(const std::string& dataset_folder)
   const auto sensor_file = DATASET_PATH_ / CONFIGURATIONS_FOLDER / SENSOR_JSON;
   std::cout << "Sensor file: " << sensor_file << std::endl;
   const auto sensor_json = read_json(sensor_file);
+
+  for (const auto& sensor : sensor_json){
+    const std::string modality(sensor["modality"]);
+    if (modality == "lidar"){
+      Lidar lidar(sensor["token"], sensor["channel"]);
+      std::cout << lidar.get_description() << std::endl;
+    }
+  }
 }
