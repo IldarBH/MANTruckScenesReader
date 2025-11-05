@@ -9,8 +9,11 @@ find_package(PCL 1.14.0 EXACT REQUIRED COMPONENTS common io)
 ###########################################################################
 
 set(HEADERS
+  include/MANTruckDataset/utils.hpp
+  include/MANTruckDataset/Sample.hpp
+  include/MANTruckDataset/SamplesManager.hpp
   include/MANTruckDataset/Sensor.hpp
-  include/MANTruckDataset/Lidar.hpp
+  include/MANTruckDataset/SensorsManager.hpp
   include/MANTruckDataset/MANTruckDataset.hpp
 )
 set(SOURCES
@@ -39,6 +42,9 @@ set_target_properties(${PROJECT_NAME}
   CMAKE_CXX_EXTENSIONS OFF
   PUBLIC_HEADER "${HEADERS}"
 )
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  target_compile_definitions(${PROJECT_NAME} PUBLIC DEBUG_BUILD)
+endif()
 
 ###########################################################################
 ##                             INSTALL LIBRIARY                          ##

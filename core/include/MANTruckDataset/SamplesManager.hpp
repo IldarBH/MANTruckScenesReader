@@ -26,16 +26,21 @@ public:
   {
     const auto data = read_json_file(filename);
     samples_.reserve(data.size());
-    const auto& s_iter = data.cbegin();
-    samples_.emplace_back(std::make_shared<Sample>(
-      s_iter->at(TOKEN_KEY).get<std::string>(), s_iter->at(FILENAME_KEY).get<std::string>()));
-    for (auto iter = std::next(s_iter); iter != data.cend(); iter = std::next(iter)) {
-      auto sample = std::make_shared<Sample>(
-        iter->at(TOKEN_KEY).get<std::string>(), iter->at(FILENAME_KEY).get<std::string>(), samples_.back());
+    for (const auto& item : data) {
+      this->add_sample(item.at(TOKEN_KEY).get<std::string>(), item.at(FILENAME_KEY).get<std::string>());
+    }
+    return samples_.size();
+  }
+
+  void add_sample(const std::string& token, const std::string& filename)
+  {
+    if (samples_.empty()) {
+      samples_.emplace_back(std::make_shared<Sample>(token, filename));
+    } else {
+      auto sample = std::make_shared<Sample>(token, filename, samples_.back());
       samples_.back()->next_sample = sample;
       samples_.emplace_back(std::move(sample));
     }
-    return samples_.size();
   }
 
   size_t size() const noexcept { return samples_.size(); };
