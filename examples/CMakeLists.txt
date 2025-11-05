@@ -2,13 +2,27 @@ cmake_minimum_required(VERSION 3.10)
 project(MANTruckScenesReader)
 
 find_package(PCL 1.14.0 EXACT REQUIRED COMPONENTS common io)
-find_package(MANTruckDataset)
 
-add_executable(example src/example.cpp)
-target_include_directories(example 
+add_executable(samples src/samples.cpp)
+target_include_directories(samples 
   PRIVATE 
-    ${PCL_INCLUDE_DIRS})
-target_link_libraries(example 
+    ${PCL_INCLUDE_DIRS}
+    MANTruckDataset
+)
+target_link_libraries(samples 
   PRIVATE 
     ${PCL_LIBRARIES}
-    MANTruckDataset)
+    MANTruckDataset
+)
+
+add_executable(sensors src/sensors.cpp)
+target_include_directories(sensors 
+  PRIVATE 
+    ${PCL_INCLUDE_DIRS}
+    MANTruckDataset
+)
+target_link_libraries(sensors 
+  PRIVATE 
+    ${PCL_LIBRARIES}
+    MANTruckDataset
+)

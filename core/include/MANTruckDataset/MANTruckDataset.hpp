@@ -1,4 +1,6 @@
 #pragma once
+#include "MANTruckDataset/Sample.hpp"
+#include "MANTruckDataset/SamplesManager.hpp"
 
 #include <string>
 #include <filesystem>
