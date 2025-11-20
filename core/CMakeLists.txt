@@ -8,13 +8,9 @@ find_package(PCL 1.14.0 EXACT REQUIRED COMPONENTS common io)
 ##                            BUILD LIBRIARY                             ##
 ###########################################################################
 
-set(HEADERS
-  include/MANTruckDataset/utils.hpp
-  include/MANTruckDataset/Sample.hpp
-  include/MANTruckDataset/SamplesManager.hpp
-  include/MANTruckDataset/Sensor.hpp
-  include/MANTruckDataset/SensorsManager.hpp
-  include/MANTruckDataset/MANTruckDataset.hpp
+# Automatically collect headers from include directory
+file(GLOB_RECURSE HEADERS 
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/MANTruckDataset/*.hpp"
 )
 set(SOURCES
   src/MANTruckDataset/MANTruckDataset.cpp
