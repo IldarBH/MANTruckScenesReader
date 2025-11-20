@@ -1,4 +1,5 @@
 #include <MANTruckDataset/SamplesManager.hpp>
+#include <pcl/visualization/pcl_visualizer.h>
 
 #include <string>
 #include <iostream>
@@ -17,7 +18,8 @@ int main(int argc, char** argv){
   
   man_ds::samples::SampleManager sm;
   sm.read_samples(samples_file);
-  const auto& sample = sm[0];
-  man_ds::samples::print_samples_chain(sample);
+  for (const auto& sample : sm){
+    std::cout << *sample << std::endl;
+  }
   return 0;
 }

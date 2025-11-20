@@ -1,34 +1,23 @@
 #pragma once
 
 #include <string>
-#include <sstream>
 #include <iostream>
 #include <memory>
 
 namespace man::dataset::samples {
-
+  
 class Sample {
 public:
   using UPtr = std::unique_ptr<Sample>;
   using SPtr = std::shared_ptr<Sample>;
   using WPtr = std::weak_ptr<Sample>;
 
-  Sample(const std::string& token, const std::string& filename, Sample::SPtr _prev = nullptr, Sample::SPtr const _next = nullptr)
+  Sample(const std::string& token, const std::string& filename, SPtr _prev = nullptr, SPtr _next = nullptr)
   : TOKEN_(token), FILENAME_(filename), prev_sample(_prev), next_sample(_next) {}
 
   const std::string& get_filename() const noexcept { return FILENAME_; }
 
-  std::string get_description() const noexcept
-  {
-    std::stringstream ss;
-    ss << "Sample token: " << TOKEN_;
-    if (prev_sample.lock())
-      ss << "\n\tPrev: " << prev_sample.lock()->TOKEN_;
-    if (next_sample.lock())
-      ss << "\n\tNext: " << next_sample.lock()->TOKEN_;
-    ss << "\n\tFilename: " << FILENAME_;
-    return ss.str();
-  }
+  friend std::ostream& operator<<(std::ostream& os, const Sample& s);
 
 public:
   WPtr prev_sample;
@@ -38,9 +27,19 @@ private:
   const std::string FILENAME_;
 };
 
-void print_samples_chain(const Sample& start_sample){
-  for (Sample const* iter = &start_sample; iter; iter = iter->next_sample.lock().get()){
-    std::cout << iter->get_description() << std::endl;
+inline std::ostream& operator<<(std::ostream& os, const Sample& s) { 
+  os << "Sample token: " << s.TOKEN_;
+  if (auto prev = s.prev_sample.lock())
+    os << "\n\tPrev: " << prev->TOKEN_;
+  if (auto next = s.next_sample.lock())
+    os << "\n\tNext: " << next->TOKEN_;
+  os << "\n\tFilename: " << s.FILENAME_;
+  return os;
+}
+
+inline void print_samples_chain(const Sample::SPtr& start_sample) {
+  for (auto cur = start_sample; cur; cur = cur->next_sample.lock()) {
+    std::cout << *cur << std::endl;
   }
 }
-};
+}
