@@ -6,7 +6,7 @@
 
 namespace man::dataset {
 
-  nlohmann::json read_json_file(const std::string& filepath) {
+inline nlohmann::json read_json_file(const std::string& filepath) {
   std::ifstream file(filepath);
   if (!file.is_open()) {
     throw std::runtime_error("Could not open file: " + filepath);
