@@ -26,3 +26,13 @@ target_link_libraries(sensors
     ${PCL_LIBRARIES}
     MANTruckDataset
 )
+
+add_executable(scenes src/scenes.cpp)
+target_include_directories(scenes 
+  PRIVATE 
+    MANTruckDataset
+)
+target_link_libraries(scenes 
+  PRIVATE 
+    MANTruckDataset
+)
