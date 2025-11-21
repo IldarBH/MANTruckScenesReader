@@ -1,45 +1,111 @@
 #pragma once
+#include "MANTruckDataset/utils.hpp"
 
 #include <string>
+#include <string_view>
 #include <iostream>
+#include <vector>
+#include <unordered_map>
 #include <memory>
+#include <stdexcept>
 
 namespace man::dataset::samples {
-  
+
 class Sample {
 public:
-  using UPtr = std::unique_ptr<Sample>;
   using SPtr = std::shared_ptr<Sample>;
   using WPtr = std::weak_ptr<Sample>;
 
-  Sample(const std::string& token, const std::string& filename, SPtr _prev = nullptr, SPtr _next = nullptr)
-  : TOKEN_(token), FILENAME_(filename), prev_sample(_prev), next_sample(_next) {}
+  Sample(
+    const std::string& token, 
+    const std::string& scene_token, 
+    const int64_t timestamp)
+    : TOKEN(token)
+    , SCENE_TOKEN(scene_token)
+    , TIMESTAMP(timestamp)
+    {
+    }
 
-  const std::string& get_filename() const noexcept { return FILENAME_; }
-
-  friend std::ostream& operator<<(std::ostream& os, const Sample& s);
-
-public:
+  const std::string TOKEN;
+  const std::string SCENE_TOKEN;
+  const int64_t TIMESTAMP;
   WPtr prev_sample;
   WPtr next_sample;
-private:
-  const std::string TOKEN_;
-  const std::string FILENAME_;
 };
 
-inline std::ostream& operator<<(std::ostream& os, const Sample& s) { 
-  os << "Sample token: " << s.TOKEN_;
-  if (auto prev = s.prev_sample.lock())
-    os << "\n\tPrev: " << prev->TOKEN_;
-  if (auto next = s.next_sample.lock())
-    os << "\n\tNext: " << next->TOKEN_;
-  os << "\n\tFilename: " << s.FILENAME_;
+inline std::ostream& operator<<(std::ostream& os, const Sample& sample) {
+  os << "Sample:\n"
+     << "\tToken: " << sample.TOKEN << "\n"
+     << "\tScene Token: " << sample.SCENE_TOKEN << "\n"
+     << "\tTimestamp: " << sample.TIMESTAMP;
   return os;
 }
 
-inline void print_samples_chain(const Sample::SPtr& start_sample) {
-  for (auto cur = start_sample; cur; cur = cur->next_sample.lock()) {
-    std::cout << *cur << std::endl;
-  }
+namespace {
+constexpr std::string_view SAMPLE_FIELD_TOKEN = "token";
+constexpr std::string_view SAMPLE_FIELD_SCENE_TOKEN = "scene_token";
+constexpr std::string_view SAMPLE_FIELD_TIMESTAMP = "timestamp";
+constexpr std::string_view SAMPLE_FIELD_PREV = "prev";
+constexpr std::string_view SAMPLE_FIELD_NEXT = "next";
 }
+
+class SampleSequence {
+public:
+  SampleSequence() = default;
+
+  void read_samples(const std::string& filename, const std::string& scene_token)
+  {
+    const auto data = read_json_file(filename);
+    for (const auto& item : data) {
+      const auto item_scene_token = item.at(SAMPLE_FIELD_SCENE_TOKEN).get<std::string>();
+      if (item_scene_token != scene_token) {
+        continue;
+      }
+      this->add_sample(
+        item.at(SAMPLE_FIELD_TOKEN).get<std::string>(),
+        item.at(SAMPLE_FIELD_SCENE_TOKEN).get<std::string>(),
+        item.at(SAMPLE_FIELD_TIMESTAMP).get<int64_t>(),
+        item.at(SAMPLE_FIELD_PREV).get<std::string>());
+      // Next token will be linked when its sample is added
+    }
+  }
+
+  void add_sample(
+    const std::string& token, 
+    const std::string& scene_token,
+    const int64_t timestamp, 
+    const std::string& prev_token = "",
+    const std::string& next_token = "")
+  {
+    if (samples_map_.find(token) != samples_map_.end()) {
+      throw std::invalid_argument("Sample with token " + token + " already exists.");
+    }
+    samples_vec_.emplace_back(std::make_shared<Sample>(token, scene_token, timestamp));
+    samples_map_[token] = samples_vec_.back();
+    if (!prev_token.empty()) {
+      const auto& prev_sample = samples_map_.at(prev_token).lock();
+      prev_sample->next_sample = samples_vec_.back();
+      samples_vec_.back()->prev_sample = prev_sample;
+    }
+    if (!next_token.empty()) {
+      const auto& next_sample = samples_map_.at(next_token).lock();
+      next_sample->prev_sample = samples_vec_.back();
+      samples_vec_.back()->next_sample = next_sample;
+    }
+  }
+
+  size_t size() const noexcept { return samples_vec_.size(); }
+
+  auto begin() noexcept { return samples_vec_.begin(); }
+  auto end() noexcept { return samples_vec_.end(); }
+  
+  auto begin() const noexcept { return samples_vec_.cbegin(); }
+  auto end() const noexcept { return samples_vec_.cend(); }
+  
+  auto cbegin() const noexcept { return samples_vec_.cbegin(); }
+  auto cend() const noexcept { return samples_vec_.cend(); }
+private:
+  std::vector<Sample::SPtr> samples_vec_;
+  std::unordered_map<std::string, Sample::WPtr> samples_map_;
+};
 }
