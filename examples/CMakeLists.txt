@@ -22,3 +22,13 @@ target_link_libraries(samples
   PRIVATE 
     MANTruckDataset
 )
+
+add_executable(data_samples src/data_samples.cpp)
+target_include_directories(data_samples 
+  PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+target_link_libraries(data_samples 
+  PRIVATE 
+    MANTruckDataset
+)
