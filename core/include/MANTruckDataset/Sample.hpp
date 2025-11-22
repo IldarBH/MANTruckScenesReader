@@ -20,24 +20,32 @@ public:
     const std::string& token, 
     const std::string& scene_token, 
     const int64_t timestamp)
-    : TOKEN(token)
-    , SCENE_TOKEN(scene_token)
-    , TIMESTAMP(timestamp)
-    {
-    }
-
-  const std::string TOKEN;
-  const std::string SCENE_TOKEN;
-  const int64_t TIMESTAMP;
+    : TOKEN_(token)
+    , SCENE_TOKEN_(scene_token)
+    , TIMESTAMP_(timestamp)
+    {}
+    
+    const std::string& get_token() const noexcept { return TOKEN_; }
+    const std::string& get_scene_token() const noexcept { return SCENE_TOKEN_; }
+    int64_t get_timestamp() const noexcept { return TIMESTAMP_; }
+    
+    bool operator<(const Sample& other) const {return TIMESTAMP_ < other.TIMESTAMP_;}
+    
+    friend std::ostream& operator<<(std::ostream& os, const Sample& sample);
+public:
   WPtr prev_sample;
   WPtr next_sample;
+private:
+  const std::string TOKEN_;
+  const std::string SCENE_TOKEN_;
+  const int64_t TIMESTAMP_;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Sample& sample) {
   os << "Sample:\n"
-     << "\tToken: " << sample.TOKEN << "\n"
-     << "\tScene Token: " << sample.SCENE_TOKEN << "\n"
-     << "\tTimestamp: " << sample.TIMESTAMP;
+     << "\tToken: " << sample.TOKEN_ << "\n"
+     << "\tScene token: " << sample.SCENE_TOKEN_ << "\n"
+     << "\tTimestamp: " << sample.TIMESTAMP_;
   return os;
 }
 
@@ -104,6 +112,8 @@ public:
   
   auto cbegin() const noexcept { return samples_vec_.cbegin(); }
   auto cend() const noexcept { return samples_vec_.cend(); }
+
+  const Sample& operator[](std::size_t index) const { return *samples_vec_.at(index); }
 private:
   std::vector<Sample::SPtr> samples_vec_;
   std::unordered_map<std::string, Sample::WPtr> samples_map_;
