@@ -15,27 +15,68 @@ class Sample {
 public:
   using SPtr = std::shared_ptr<Sample>;
   using WPtr = std::weak_ptr<Sample>;
+  
+  Sample() = delete;
 
   Sample(
     const std::string& token, 
     const std::string& scene_token, 
-    const int64_t timestamp)
-    : TOKEN_(token)
-    , SCENE_TOKEN_(scene_token)
-    , TIMESTAMP_(timestamp)
-    {}
-    
-    const std::string& get_token() const noexcept { return TOKEN_; }
-    const std::string& get_scene_token() const noexcept { return SCENE_TOKEN_; }
-    int64_t get_timestamp() const noexcept { return TIMESTAMP_; }
-    
-    bool operator<(const Sample& other) const {return TIMESTAMP_ < other.TIMESTAMP_;}
-    
-    friend std::ostream& operator<<(std::ostream& os, const Sample& sample);
-public:
-  WPtr prev_sample;
-  WPtr next_sample;
+    const int64_t timestamp,
+    Sample* prev_sample = nullptr,
+    Sample* next_sample = nullptr)
+  : TOKEN_(token)
+  , SCENE_TOKEN_(scene_token)
+  , TIMESTAMP_(timestamp)
+  {
+    if (prev_sample)
+      this->set_prev_sample(prev_sample);
+    if (next_sample)
+      this->set_next_sample(next_sample);
+  }
+  
+  explicit Sample(const Sample& other)
+  : TOKEN_(other.TOKEN_)
+  , SCENE_TOKEN_(other.SCENE_TOKEN_)
+  , TIMESTAMP_(other.TIMESTAMP_)
+  , prev_sample_(other.prev_sample_)
+  , next_sample_(other.next_sample_) 
+  {}
+  
+  ~Sample()
+  {
+    if (prev_sample_)
+      prev_sample_->set_next_sample(next_sample_);
+    if (next_sample_)
+      next_sample_->set_prev_sample(prev_sample_);
+  }
+  
+  Sample& operator=(const Sample& other) = delete;
+
+  void set_prev_sample(Sample* prev) noexcept 
+  { 
+    prev_sample_ = prev;
+    if (prev && (prev->get_next_sample() != this))
+      prev->set_next_sample(this);
+  }
+
+  void set_next_sample(Sample* next) noexcept 
+  { 
+    next_sample_ = next; 
+    if (next && (next->get_prev_sample() != this))
+      next->set_prev_sample(this);
+  }
+
+  const std::string& get_token() const noexcept { return TOKEN_; }
+  const std::string& get_scene_token() const noexcept { return SCENE_TOKEN_; }
+  const int64_t& get_timestamp() const noexcept { return TIMESTAMP_; }
+  Sample* get_prev_sample() const noexcept { return prev_sample_; }
+  Sample* get_next_sample() const noexcept { return next_sample_; }
+
+  friend std::ostream& operator<<(std::ostream& os, const Sample& sample);
+
 private:
+  Sample* prev_sample_ = nullptr;
+  Sample* next_sample_ = nullptr;
   const std::string TOKEN_;
   const std::string SCENE_TOKEN_;
   const int64_t TIMESTAMP_;
@@ -92,13 +133,13 @@ public:
     samples_map_[token] = samples_vec_.back();
     if (!prev_token.empty()) {
       const auto& prev_sample = samples_map_.at(prev_token).lock();
-      prev_sample->next_sample = samples_vec_.back();
-      samples_vec_.back()->prev_sample = prev_sample;
+      prev_sample->set_next_sample(samples_vec_.back().get());
+      samples_vec_.back()->set_prev_sample(prev_sample.get());
     }
     if (!next_token.empty()) {
       const auto& next_sample = samples_map_.at(next_token).lock();
-      next_sample->prev_sample = samples_vec_.back();
-      samples_vec_.back()->next_sample = next_sample;
+      next_sample->set_prev_sample(samples_vec_.back().get());
+      samples_vec_.back()->set_next_sample(next_sample.get());
     }
   }
 
