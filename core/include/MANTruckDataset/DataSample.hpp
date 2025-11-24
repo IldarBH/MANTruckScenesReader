@@ -85,37 +85,26 @@ class DataSequence {
 public:
   DataSequence() = default;
 
-  void read_samples(const std::string& filename, const std::string& sample_token)
+  /**
+   * @brief Read data samples from a JSON file, filtering by sample tokens.
+   * @param filename Path to the JSON file.
+   * @param sample_token Vector of sample tokens to filter the data samples.
+   */
+  void read_samples(const std::string& filename, const std::vector<std::string>& sample_token)
   {
     const auto data = read_json_file(filename);
-    for (const auto& item : data) {
-      const auto item_sample_token = item.at(SAMPLE_FIELD_SAMPLE_TOKEN).get<std::string>();
-      if (item_sample_token != sample_token) {
-        continue;
-      }
-      auto prev_token = item.at(SAMPLE_FIELD_PREV).get<std::string>();
-      if (!prev_token.empty() && (samples_map_.find(prev_token) == samples_map_.end())) {
-        waiting_list_.insert(std::move(prev_token));
-      }
-      auto next_token = item.at(SAMPLE_FIELD_NEXT).get<std::string>();
-      if (!next_token.empty() && (samples_map_.find(next_token) == samples_map_.end())) {
-        waiting_list_.insert(std::move(next_token));
-      }
-      const auto token = item.at(SAMPLE_FIELD_TOKEN).get<std::string>();
-      if (waiting_list_.find(token) != waiting_list_.end()){
-        waiting_list_.erase(token);
-      }
+    const std::unordered_set<std::string> sample_tokens(sample_token.begin(), sample_token.end());
+    this->parse_json_(data, sample_tokens);
+  }
 
-      this->add_sample(token,
-        item.at(SAMPLE_FIELD_SAMPLE_TOKEN).get<std::string>(),
-        item.at(SAMPLE_FIELD_EGO_POSE_TOKEN).get<std::string>(),
-        item.at(SAMPLE_FIELD_CALIBRATED_SENSOR_TOKEN).get<std::string>(),
-        item.at(SAMPLE_FIELD_FILEFORMAT).get<std::string>(),
-        item.at(SAMPLE_FIELD_FILENAME).get<std::string>(),
-        item.at(SAMPLE_FIELD_TIMESTAMP).get<uint64_t>(),
-        prev_token, next_token);
-      // Next token will be linked when its sample is added
-    }
+  /**
+   * @brief Read data samples from a JSON file for a single sample token.
+   * @param filename Path to the JSON file.
+   * @param sample_token Sample token to filter the data samples.
+   */
+  void read_samples(const std::string& filename, const std::string& sample_token)
+  {
+    this->read_samples(filename, std::vector<std::string>{sample_token});
   }
 
   void add_sample(
@@ -159,6 +148,41 @@ public:
   
   auto cbegin() const noexcept { return samples_vec_.cbegin(); }
   auto cend() const noexcept { return samples_vec_.cend(); }
+
+private:
+  void parse_json_(const nlohmann::json& data, const std::unordered_set<std::string>& sample_tokens)
+  {
+    samples_vec_.reserve(data.size());
+    for (const auto& item : data) {
+      const auto item_sample_token = item.at(SAMPLE_FIELD_SAMPLE_TOKEN).get<std::string>();
+      if (sample_tokens.find(item_sample_token) == sample_tokens.end()) {
+        continue;
+      }
+      auto prev_token = item.at(SAMPLE_FIELD_PREV).get<std::string>();
+      if (!prev_token.empty() && (samples_map_.find(prev_token) == samples_map_.end())) {
+        waiting_list_.insert(std::move(prev_token));
+      }
+      auto next_token = item.at(SAMPLE_FIELD_NEXT).get<std::string>();
+      if (!next_token.empty() && (samples_map_.find(next_token) == samples_map_.end())) {
+        waiting_list_.insert(std::move(next_token));
+      }
+      const auto token = item.at(SAMPLE_FIELD_TOKEN).get<std::string>();
+      if (waiting_list_.find(token) != waiting_list_.end()){
+        waiting_list_.erase(token);
+      }
+      this->add_sample(token,
+        item.at(SAMPLE_FIELD_SAMPLE_TOKEN).get<std::string>(),
+        item.at(SAMPLE_FIELD_EGO_POSE_TOKEN).get<std::string>(),
+        item.at(SAMPLE_FIELD_CALIBRATED_SENSOR_TOKEN).get<std::string>(),
+        item.at(SAMPLE_FIELD_FILEFORMAT).get<std::string>(),
+        item.at(SAMPLE_FIELD_FILENAME).get<std::string>(),
+        item.at(SAMPLE_FIELD_TIMESTAMP).get<uint64_t>(),
+        prev_token, next_token);
+      // Next token will be linked when its sample is added
+    }
+    samples_vec_.shrink_to_fit();
+  }
+
 private:
   std::unordered_set<std::string> waiting_list_;
   std::vector<DataSample::SPtr> samples_vec_;
