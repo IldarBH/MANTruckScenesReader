@@ -155,6 +155,16 @@ public:
   auto cend() const noexcept { return samples_vec_.cend(); }
 
   const Sample& operator[](std::size_t index) const { return *samples_vec_.at(index); }
+
+  std::vector<std::string> get_tokens() const noexcept {
+    std::vector<std::string> tokens;
+    tokens.reserve(samples_vec_.size());
+    for (const auto& sample_ptr : samples_vec_) {
+      tokens.push_back(sample_ptr->get_token());
+    }
+    return tokens;
+  }
+
 private:
   std::vector<Sample::SPtr> samples_vec_;
   std::unordered_map<std::string, Sample::WPtr> samples_map_;
