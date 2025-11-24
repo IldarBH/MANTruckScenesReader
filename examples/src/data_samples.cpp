@@ -30,15 +30,10 @@ int main(int argc, char** argv){
 
   const std::string data_sample_file(dataset_path / "v1.0-mini" / "sample_data.json");
   man_ds::data_samples::DataSequence data_sequence;
-  for (const auto& sample_ptr : sample_sequence){
-    std::cout << "Reading samples from: " << sample_ptr->get_token() << ". ";
-    data_sequence.read_samples(data_sample_file, sample_ptr->get_token());
-    std::cout << "Total data samples read: " << data_sequence.size() << std::endl;
-  }
-  
+  data_sequence.read_samples(data_sample_file, sample_sequence.get_tokens());
   if (!data_sequence.is_complete()){
     std::cerr << "Warning: Data sequence is incomplete." << std::endl;
   }
-  std::cout << "Number of data samples for selected sample: " << data_sequence.size() << std::endl;
+  std::cout << "Number of data samples: " << data_sequence.size() << std::endl;
   return 0;
 }
