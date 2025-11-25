@@ -3,6 +3,7 @@
 #include <MANTruckDataset/Sample.hpp>
 #include <MANTruckDataset/DataSample.hpp>
 #include <MANTruckDataset/Sensor.hpp>
+#include <MANTruckDataset/Calibration.hpp>
 
 #include <string>
 #include <iostream>
@@ -38,7 +39,11 @@ int main(int argc, char** argv){
   std::cout << "Number of data samples: " << data_sequence.size() << std::endl;
 
   const std::string sensors_file(dataset_path / "v1.0-mini" / "sensor.json");
-  man_ds::sensors::SensorManager sm;
-  sm.read_sensors(sensors_file);
+  man_ds::sensors::SensorManager sensor_manager;
+  sensor_manager.read_sensors(sensors_file);
+
+  const std::string calibrations_file(dataset_path / "v1.0-mini" / "calibrated_sensor.json");
+  man_ds::calibration::CalibrationManager calibration_manager;
+  calibration_manager.read_calibrations(calibrations_file);
   return 0;
 }

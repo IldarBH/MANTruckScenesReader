@@ -170,8 +170,7 @@ private:
       if (waiting_list_.find(token) != waiting_list_.end()){
         waiting_list_.erase(token);
       }
-      this->add_sample(token,
-        item.at(SAMPLE_FIELD_SAMPLE_TOKEN).get<std::string>(),
+      this->add_sample(token, item_sample_token,
         item.at(SAMPLE_FIELD_EGO_POSE_TOKEN).get<std::string>(),
         item.at(SAMPLE_FIELD_CALIBRATED_SENSOR_TOKEN).get<std::string>(),
         item.at(SAMPLE_FIELD_FILEFORMAT).get<std::string>(),
