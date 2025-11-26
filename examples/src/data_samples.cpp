@@ -25,7 +25,7 @@ int main(int argc, char** argv){
 
   const std::string sample_file(dataset_path / "v1.0-mini" / "sample.json");
   man_ds::samples::SampleSequence sample_sequence;
-  sample_sequence.read_samples(sample_file, scene.TOKEN);
+  sample_sequence.read_samples(sample_file, scene.get_token());
   std::cout << "Number of samples in scene: " << sample_sequence.size() << std::endl;
 
   const std::string data_sample_file(dataset_path / "v1.0-mini" / "sample_data.json");

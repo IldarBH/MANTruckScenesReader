@@ -4,7 +4,7 @@
 #include <string>
 #include <string_view>
 #include <cstddef>
-#include <vector>
+#include <unordered_map>
 
 namespace man::dataset::scenes {
 
@@ -16,27 +16,34 @@ public:
     const std::string& token, 
     const std::string& first_sample_token, 
     const std::string& last_sample_token)
-  : NAME(name)
-  , DESCRIPTION(description)
-  , TOKEN(token)
-  , FIRST_SAMPLE_TOKEN(first_sample_token)
-  , LAST_SAMPLE_TOKEN(last_sample_token) 
+  : NAME_(name)
+  , DESCRIPTION_(description)
+  , TOKEN_(token)
+  , FIRST_SAMPLE_TOKEN_(first_sample_token)
+  , LAST_SAMPLE_TOKEN_(last_sample_token) 
   {}
 
-public:
-  const std::string NAME;
-  const std::string DESCRIPTION;
-  const std::string TOKEN;
-  const std::string FIRST_SAMPLE_TOKEN;
-  const std::string LAST_SAMPLE_TOKEN;
+  const std::string& get_name() const { return NAME_; }
+  const std::string& get_description() const { return DESCRIPTION_; }
+  const std::string& get_token() const { return TOKEN_; }
+  const std::string& get_first_sample_token() const { return FIRST_SAMPLE_TOKEN_; }
+  const std::string& get_last_sample_token() const { return LAST_SAMPLE_TOKEN_; }
+
+  friend std::ostream& operator<<(std::ostream& os, const Scene& scene);
+private:
+  const std::string NAME_;
+  const std::string DESCRIPTION_;
+  const std::string TOKEN_;
+  const std::string FIRST_SAMPLE_TOKEN_;
+  const std::string LAST_SAMPLE_TOKEN_;
 private:
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Scene& scene) {
   os << "Scene:\n"
-     << "\tToken: " << scene.TOKEN << "\n"
-     << "\tName: " << scene.NAME << "\n"
-     << "\tDescription: " << scene.DESCRIPTION;
+     << "\tToken: " << scene.TOKEN_ << "\n"
+     << "\tName: " << scene.NAME_ << "\n"
+     << "\tDescription: " << scene.DESCRIPTION_;
   return os;
 }
 
@@ -52,11 +59,12 @@ class SceneManager {
 public:
   SceneManager() = default;
 
-  void read_scenes(const std::string& filename){
+  void read_scenes(const std::string& filename)
+  {
     const auto data = read_json_file(filename);
     scenes_.reserve(data.size());
     for (const auto& item : data){
-      scenes_.emplace_back(
+      this->add_scene(
         item.at(SCENE_FIELD_NAME).get<std::string>(), 
         item.at(SCENE_FIELD_DESCRIPTION).get<std::string>(), 
         item.at(SCENE_FIELD_TOKEN).get<std::string>(), 
@@ -66,26 +74,22 @@ public:
     }
   }
 
-  void add_scene(const Scene& scene){
-    scenes_.emplace_back(scene);
+  void add_scene(const std::string& name,
+                 const std::string& description,
+                 const std::string& token,
+                 const std::string& first_sample_token,
+                 const std::string& last_sample_token)
+  {
+    scenes_.emplace(token, Scene(name, description, token, first_sample_token, last_sample_token));
   }
 
-  std::size_t size() const {
-    return scenes_.size();
-  }
+  const Scene& operator[](const std::string& token) const { return scenes_.at(token); }
 
-  const Scene& operator[](std::size_t index) const {
-    return scenes_[index];
-  }
+  auto begin() const { return scenes_.begin(); }
+  auto end() const { return scenes_.end(); }
+  auto size() const { return scenes_.size(); }
 
-  auto begin() const {
-    return scenes_.begin();
-  }
-
-  auto end() const {
-    return scenes_.end();
-  }
 private:
-  std::vector<Scene> scenes_;
+  std::unordered_map<std::string, Scene> scenes_;
 };
 }
