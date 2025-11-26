@@ -57,17 +57,18 @@ class CalibrationManager {
 public:
   CalibrationManager() = default;
 
-  void read_calibrations(const std::string& filename)
+  /**
+   * @brief Read calibrations from a JSON file.
+   * @param filename Path to the JSON file.
+   * @param sensor_tokens Optional list of sensor tokens to filter calibrations.
+   * @details If sensor_tokens is provided, only calibrations for the specified sensors will be loaded.
+   * Be aware sensor tokens are not the same as calibration tokens.
+   */
+  void read_calibrations(const std::string& filename, const std::vector<std::string>& sensor_tokens = {})
   {
+    std::unordered_set<std::string> filter_set(sensor_tokens.begin(), sensor_tokens.end());
     const auto json_file = read_json_file(filename);
-    for (const auto& item : json_file) {
-      const std::string token(item.at(TOKEN_KEY).get<std::string>());
-      const std::string sensor_token(item.at(SENSOR_TOKEN_KEY).get<std::string>());
-      const std::vector<double> translation = item["translation"].get<std::vector<double>>();
-      const std::vector<double> rotation = item["rotation"].get<std::vector<double>>();
-      // const std::vector<std::vector<double>> camera_intrinsic = item["camera_intrinsic"].get<std::vector<std::vector<double>>>();
-      add_calibration(token, sensor_token, translation, rotation);
-    }
+    this->parse_json_(json_file, filter_set);
   }
 
   void add_calibration(const std::string& token, const std::string& sensor_token, const std::vector<double>& translation, const std::vector<double>& rotation)
@@ -87,6 +88,23 @@ public:
     }
     return iter->second;
   }
+private:
+  void parse_json_(const nlohmann::json& data, const std::unordered_set<std::string>& filter_tokens)
+  {
+    for (const auto& item : data) {
+      const std::string sensor_token(item.at(SENSOR_TOKEN_KEY).get<std::string>());
+      if (!filter_tokens.empty() && (filter_tokens.find(sensor_token) == filter_tokens.end())) {
+        continue;
+      }
+      add_calibration(
+        item.at(TOKEN_KEY).get<std::string>(), 
+        sensor_token, 
+        item["translation"].get<std::vector<double>>(), 
+        item["rotation"].get<std::vector<double>>()
+      );
+    }
+  }
+
 private:
   std::unordered_map<std::string, Calibration> calibrations_;
 };

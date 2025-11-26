@@ -44,10 +44,10 @@ MANTruckDataset::MANTruckDataset(
     throw std::invalid_argument("Dataset folder '" + dataset_folder + "' doesn't exists");
   }
   const std::string sensor_file(DATASET_PATH_ / DEFAULT_SENSOR_FILE);
-  sensor_manager_.read_sensors(sensor_file);
+  sensor_manager_.read_sensors(sensor_file, sensor_tokens);
 
   const std::string calibrations_file(DATASET_PATH_ / DEFAULT_CALIBRATION_FILE);
-  calibration_manager_.read_calibrations(calibrations_file);
+  calibration_manager_.read_calibrations(calibrations_file, sensor_tokens);
 }
 
 }

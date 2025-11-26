@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <string_view>
+#include <unordered_set>
 #include <unordered_map>
 #include <memory>
 
@@ -46,7 +47,7 @@ private:
 
 std::ostream& operator<<(std::ostream& os, const SensorBase& sensor)
 {
-  os << "Sensor:"
+  os << "Sensor:\n"
      << "\tToken: " << sensor.TOKEN_ << "\n"
      << "\tChannel: " << sensor.CHANNEL_ << "\n"
      << "\tModality: " << sensor.MODALITY_;
@@ -72,17 +73,17 @@ class SensorManager {
 public:
   SensorManager() = default;
 
-  void read_sensors(const std::string& filename)
+  /**
+   * @brief Read sensors from a JSON file.
+   * @param filename Path to the JSON file.
+   * @param filter_tokens Optional list of sensor tokens to filter sensors.
+   * @details If filter_tokens is provided, only sensors with the specified tokens will be loaded.
+   */
+  void read_sensors(const std::string& filename, const std::vector<std::string>& filter_tokens = {})
   {
+    const std::unordered_set<std::string> filter_set(filter_tokens.begin(), filter_tokens.end());
     const auto json_file = read_json_file(filename);
-    for (const auto& item : json_file) {
-      const std::string modality(item.at(MODALITY_KEY).get<std::string>());
-      if (modality == LIDAR_MODALITY) {
-        add_lidar(item.at(TOKEN_KEY).get<std::string>(), item.at(CHANNEL_KEY).get<std::string>());
-      } else {
-        add_sensor(item.at(TOKEN_KEY).get<std::string>(), item.at(CHANNEL_KEY).get<std::string>(), modality);
-      }
-    }
+    this->parse_json_(json_file, filter_set);
   }
   
   void add_lidar(const std::string& token, const std::string& channel)
@@ -118,6 +119,23 @@ public:
   auto end() { return sensors_.end(); }
   auto begin() const { return sensors_.cbegin(); }
   auto end() const { return sensors_.cend(); }
+
+private:
+  void parse_json_(const nlohmann::json& data, const std::unordered_set<std::string>& filter_tokens)
+  {
+    for (const auto& item : data) {
+      const std::string token(item.at(TOKEN_KEY).get<std::string>());
+      if (!filter_tokens.empty() && (filter_tokens.find(token) == filter_tokens.end())) {
+        continue;
+      }
+      const std::string modality(item.at(MODALITY_KEY).get<std::string>());
+      if (modality == LIDAR_MODALITY) {
+        add_lidar(item.at(TOKEN_KEY).get<std::string>(), item.at(CHANNEL_KEY).get<std::string>());
+      } else {
+        add_sensor(item.at(TOKEN_KEY).get<std::string>(), item.at(CHANNEL_KEY).get<std::string>(), modality);
+      }
+    }
+  }
 
 private:
   std::unordered_map<std::string, SensorBase::SPtr> others_;
