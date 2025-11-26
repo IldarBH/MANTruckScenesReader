@@ -78,6 +78,15 @@ public:
       std::cout << iter.first->second << std::endl;
     #endif
   }
+
+  const Calibration& operator[](const std::string& token) const
+  {
+    const auto iter = calibrations_.find(token);
+    if (iter == calibrations_.end()) {
+      throw std::runtime_error("Calibration with token " + token + " not found.");
+    }
+    return iter->second;
+  }
 private:
   std::unordered_map<std::string, Calibration> calibrations_;
 };

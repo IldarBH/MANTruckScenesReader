@@ -1,6 +1,7 @@
 #pragma once
 #include <MANTruckDataset/Scene.hpp>
 #include <MANTruckDataset/Sample.hpp>
+#include <MANTruckDataset/Sensor.hpp>
 
 #include <iostream>
 
@@ -46,4 +47,31 @@ inline const man_ds::samples::Sample& select_sample(const man_ds::samples::Sampl
   const auto& sample = sequence[selection - 1];
   std::cout << "You have selected scene: " << sample.get_token() << std::endl;
   return sample;
+}
+
+
+inline const man_ds::sensors::SensorBase& select_sensor(const man_ds::sensors::SensorManager& sensor_manager)
+{
+  std::cout << "Select sensor:" << std::endl;
+  std::vector<std::string> sensor_tokens;
+  for (const auto& [token, sensor_ptr] : sensor_manager){
+    sensor_tokens.push_back(token);
+  }
+  for (size_t id = 0; id < sensor_tokens.size(); ++id){
+    const auto& token = sensor_tokens[id];
+    const auto& sensor = sensor_manager[token];
+    std::cout << id+1 << ". " << sensor.get_channel() << ", files: " << sensor.files.size() << std::endl;
+  }
+  std::cout << "Enter selection (1-" << sensor_manager.size() << "): ";
+
+  size_t selection = 0;
+  while (selection < 1 || selection > sensor_manager.size()){
+    std::cin >> selection;
+    if (selection < 1 || selection > sensor_manager.size()){
+      std::cerr << "Invalid selection! Try again." << std::endl;
+    }
+  }
+  const auto& sensor = sensor_manager[sensor_tokens[selection - 1]];
+  std::cout << "You have selected sensor: " << sensor.get_token() << std::endl;
+  return sensor;
 }
