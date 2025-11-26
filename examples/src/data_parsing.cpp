@@ -2,6 +2,8 @@
 #include <MANTruckDataset/Scene.hpp>
 #include <MANTruckDataset/Sample.hpp>
 #include <MANTruckDataset/DataSample.hpp>
+#include <MANTruckDataset/Sensor.hpp>
+#include <MANTruckDataset/Calibration.hpp>
 
 #include <string>
 #include <iostream>
@@ -17,16 +19,24 @@ int main(int argc, char** argv){
   }
   const fs::path dataset_path(argv[1]);
   
+  const std::string sensors_file(dataset_path / "v1.0-mini" / "sensor.json");
+  man_ds::sensors::SensorManager sensor_manager;
+  sensor_manager.read_sensors(sensors_file);
+
+  const std::string calibrations_file(dataset_path / "v1.0-mini" / "calibrated_sensor.json");
+  man_ds::calibration::CalibrationManager calibration_manager;
+  calibration_manager.read_calibrations(calibrations_file);
+
   const std::string scene_file(dataset_path / "v1.0-mini" / "scene.json");
   man_ds::scenes::SceneManager scene_manager;
   scene_manager.read_scenes(scene_file);
-  const auto& scene = select_scene(scene_manager);
+  const auto& scene = scene_manager[0];
   std::cout << scene << std::endl;
 
   const std::string sample_file(dataset_path / "v1.0-mini" / "sample.json");
   man_ds::samples::SampleSequence sample_sequence;
   sample_sequence.read_samples(sample_file, scene.TOKEN);
-  std::cout << "Number of samples in scene: " << sample_sequence.size() << std::endl;
+  std::cout << "Number of samples: " << sample_sequence.size() << std::endl;
 
   const std::string data_sample_file(dataset_path / "v1.0-mini" / "sample_data.json");
   man_ds::data_samples::DataSequence data_sequence;
@@ -35,5 +45,15 @@ int main(int argc, char** argv){
     std::cerr << "Warning: Data sequence is incomplete." << std::endl;
   }
   std::cout << "Number of data samples: " << data_sequence.size() << std::endl;
+
+  for (const auto& data_sample : data_sequence){
+    const auto& calibrated_sensor_token = data_sample->get_calibrated_sensor_token();
+    const auto& calibrated_sensor = calibration_manager[calibrated_sensor_token];
+    const auto& sensor_token = calibrated_sensor.get_sensor_token();
+    auto& sensor = sensor_manager[sensor_token];
+    sensor.files.push_back(data_sample->get_filename());
+  }
+  const auto& sensor = select_sensor(sensor_manager);
+  std::cout << sensor << std::endl;
   return 0;
 }
