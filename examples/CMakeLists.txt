@@ -52,3 +52,13 @@ target_link_libraries(data_parsing
   PRIVATE 
     MANTruckDataset
 )
+
+add_executable(man_dataset src/man_dataset.cpp)
+target_include_directories(man_dataset 
+  PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+target_link_libraries(man_dataset 
+  PRIVATE 
+    MANTruckDataset
+)

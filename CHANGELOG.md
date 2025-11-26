@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0]
 
+### New Features
+- Added MAN Dataset class for handling datasets.
+- Included examples for using the MAN Dataset class.
+
 ### Enhancements
 - Scene class attributes are now private with getter methods.
 - Update API for SceneManager.
