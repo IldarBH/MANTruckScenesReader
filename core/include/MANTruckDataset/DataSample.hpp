@@ -122,8 +122,7 @@ public:
       throw std::invalid_argument("Sample with token " + token + " already exists.");
     }
     samples_vec_.emplace_back(std::make_shared<DataSample>(token, sample_token, ego_pose_token, calibrated_sensor_token, fileformat, filename, timestamp));
-
-    samples_map_[token] = samples_vec_.back();
+    samples_map_.emplace(std::make_pair(token, samples_vec_.back()));
     if (!prev_token.empty()) {
       const auto& prev_sample = samples_map_.at(prev_token).lock();
       prev_sample->next_sample = samples_vec_.back();

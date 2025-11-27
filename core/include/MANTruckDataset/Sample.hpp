@@ -130,7 +130,7 @@ public:
       throw std::invalid_argument("Sample with token " + token + " already exists.");
     }
     samples_vec_.emplace_back(std::make_shared<Sample>(token, scene_token, timestamp));
-    samples_map_[token] = samples_vec_.back();
+    samples_map_.emplace(std::make_pair(token, samples_vec_.back()));
     if (!prev_token.empty()) {
       const auto& prev_sample = samples_map_.at(prev_token).lock();
       prev_sample->set_next_sample(samples_vec_.back().get());
