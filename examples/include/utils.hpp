@@ -63,7 +63,7 @@ inline const man_ds::sensors::SensorBase& select_sensor(const man_ds::sensors::S
   for (size_t id = 0; id < sensor_tokens.size(); ++id){
     const auto& token = sensor_tokens[id];
     const auto& sensor = sensor_manager[token];
-    std::cout << id+1 << ". " << sensor.get_channel() << ", files: " << sensor.files.size() << std::endl;
+    std::cout << id+1 << ". " << sensor.get_channel() << ", files: " << sensor.size() << std::endl;
   }
   std::cout << "Enter selection (1-" << sensor_manager.size() << "): ";
 

@@ -80,6 +80,8 @@ public:
     #endif
   }
 
+  bool toekn_exists(const std::string& token) const noexcept{ return calibrations_.find(token) != calibrations_.end(); }
+
   const Calibration& operator[](const std::string& token) const
   {
     const auto iter = calibrations_.find(token);
