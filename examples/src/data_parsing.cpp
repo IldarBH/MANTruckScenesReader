@@ -35,7 +35,7 @@ int main(int argc, char** argv){
 
   const std::string sample_file(dataset_path / "v1.0-mini" / "sample.json");
   man_ds::samples::SampleSequence sample_sequence;
-  sample_sequence.read_samples(sample_file, scene.TOKEN);
+  sample_sequence.read_samples(sample_file, scene.get_token());
   std::cout << "Number of samples: " << sample_sequence.size() << std::endl;
 
   const std::string data_sample_file(dataset_path / "v1.0-mini" / "sample_data.json");
@@ -51,7 +51,7 @@ int main(int argc, char** argv){
     const auto& calibrated_sensor = calibration_manager[calibrated_sensor_token];
     const auto& sensor_token = calibrated_sensor.get_sensor_token();
     auto& sensor = sensor_manager[sensor_token];
-    sensor.files.push_back(data_sample->get_filename());
+    sensor.add_file(data_sample->get_filename(), data_sample->get_timestamp());
   }
   const auto& sensor = select_sensor(sensor_manager);
   std::cout << sensor << std::endl;

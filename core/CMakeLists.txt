@@ -12,26 +12,21 @@ find_package(PCL 1.14.0 EXACT REQUIRED COMPONENTS common io)
 file(GLOB_RECURSE HEADERS 
   "${CMAKE_CURRENT_SOURCE_DIR}/include/MANTruckDataset/*.hpp"
 )
-set(SOURCES
-  src/MANTruckDataset/MANTruckDataset.cpp
-)
 add_library(${PROJECT_NAME} 
-  SHARED 
-    ${SOURCES} 
+  SHARED
     ${HEADERS}
 )
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  PRIVATE
     ${PCL_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
-  PRIVATE
     ${PCL_LIBRARIES}
 )
 set_target_properties(${PROJECT_NAME} 
   PROPERTIES 
+  LINKER_LANGUAGE CXX
   VERSION ${PROJECT_VERSION}
   CMAKE_CXX_STANDARD 20
   CMAKE_CXX_STANDARD_REQUIRED ON
