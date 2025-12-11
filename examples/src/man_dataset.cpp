@@ -1,5 +1,5 @@
 #include <MANTruckDataset/MANTruckDataset.hpp>
-#include <MANTruckDataset/PointClouds.hpp>
+#include <MANTruckDataset/data_utils.hpp>
 
 #include <pcl/visualization/pcl_visualizer.h>
 
