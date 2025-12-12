@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 # [Unreleased]
 
+## [0.3.0]
+
+### New Features
+- Added Python bindings for MAN Truck Scenes Reader.
+- Examples for using the Python bindings.
+- Added reading images with openCV.
+
 ## [0.2.0]
 
 ### New Features

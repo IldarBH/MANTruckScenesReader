@@ -1,4 +1,4 @@
-from MANTruckDataset import Scene, SceneManager
+from MANTruckDatasetPy import Scene, SceneManager
 from utils import DATASET_PATH, SCENE_FILE
 
 if __name__ == "__main__":
