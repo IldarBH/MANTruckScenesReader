@@ -1,6 +1,8 @@
 # Folders
 build
 .vscode
+__pycache__
 
 # File extensions
 *.code-workspace
+*ipynb
