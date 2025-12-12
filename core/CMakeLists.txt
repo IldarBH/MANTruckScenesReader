@@ -4,7 +4,6 @@ set(PROJECT_VERSION 0.1.0)
 
 find_package(PCL 1.14.0 EXACT REQUIRED COMPONENTS common io)
 find_package(OpenCV REQUIRED)
-find_package(pybind11 REQUIRED)
 
 ###########################################################################
 ##                            BUILD LIBRIARY                             ##
@@ -14,13 +13,9 @@ find_package(pybind11 REQUIRED)
 file(GLOB_RECURSE HEADERS 
   "${CMAKE_CURRENT_SOURCE_DIR}/include/MANTruckDataset/*.hpp"
 )
-file(GLOB_RECURSE SOURCES 
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-)
 add_library(${PROJECT_NAME} 
   SHARED
     ${HEADERS}
-    ${SOURCES}
 )
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -32,10 +27,7 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
     ${PCL_LIBRARIES}
     ${OpenCV_LIBS}
-  PRIVATE 
-    pybind11::module
 )
-pybind11_extension(${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} 
   PROPERTIES 
     LINKER_LANGUAGE CXX
@@ -43,9 +35,6 @@ set_target_properties(${PROJECT_NAME}
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
-    PUBLIC_HEADER "${HEADERS}"
-    PREFIX "${PYTHON_MODULE_PREFIX}"
-    SUFFIX "${PYTHON_MODULE_EXTENSION}"
 )
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   target_compile_definitions(${PROJECT_NAME} PUBLIC DEBUG_BUILD)
@@ -72,13 +61,6 @@ install(
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
-# Install Python extension module to Python site-packages
-install(
-  TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}Targets
-  LIBRARY DESTINATION ${PYTHON_SITE_PACKAGES}
-  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
 # Install public header files to the include directory
 install(
   FILES ${HEADERS} 
@@ -89,11 +71,6 @@ install(
   EXPORT ${PROJECT_NAME}Targets
   FILE "${PROJECT_NAME}Targets.cmake"
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-)
-# Install Python stub file for type hinting support
-install(
-  FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/MANTruckDataset.pyi"
-  DESTINATION ${PYTHON_SITE_PACKAGES}
 )
 
 ###########################################################################
@@ -113,3 +90,9 @@ install(
     "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
 )
+
+###########################################################################
+##                           BUILD PYTHON BINDINGS                       ##
+###########################################################################
+
+add_subdirectory(python)

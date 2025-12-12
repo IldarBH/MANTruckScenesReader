@@ -1,12 +1,12 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "MANTruckDataset/Scene.hpp"
+#include <MANTruckDataset/Scene.hpp>
 
 namespace py = pybind11;
 namespace man_ds = man::dataset;
 
-PYBIND11_MODULE(MANTruckDataset, m) {
+PYBIND11_MODULE(MANTruckDatasetPy, m) {
   m.doc() = "pybind11 plugin for MANTruckDataset";
 
   py::class_<man_ds::scenes::Scene>(m, "Scene",
