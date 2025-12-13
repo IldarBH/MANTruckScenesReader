@@ -114,7 +114,7 @@ private:
   std::vector<DataItem::SPtr> samples_vec_;
 };
 
-std::ostream& operator<<(std::ostream& os, const SensorBase& sensor)
+inline std::ostream& operator<<(std::ostream& os, const SensorBase& sensor)
 {
   os << "Sensor:\n"
      << "\tToken: " << sensor.TOKEN_ << "\n"
