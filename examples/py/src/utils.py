@@ -1,4 +1,6 @@
 from pathlib import Path
 
-DATASET_PATH = Path("/workspace/Sandbox/data/man-truckscenes")
-SCENE_FILE = DATASET_PATH / "v1.0-mini" / "scene.json"
+DATASET_PATH = Path("/workspace/Sandbox/data/man-truckscenes/v1.0-mini")
+SCENE_FILE = DATASET_PATH / "scene.json"
+SAMPLE_FILE = DATASET_PATH / "sample.json"
+SENCOR_FILE = DATASET_PATH / "sensor.json"
