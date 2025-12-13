@@ -114,7 +114,7 @@ private:
   std::vector<DataItem::SPtr> samples_vec_;
 };
 
-std::ostream& operator<<(std::ostream& os, const SensorBase& sensor)
+inline std::ostream& operator<<(std::ostream& os, const SensorBase& sensor)
 {
   os << "Sensor:\n"
      << "\tToken: " << sensor.TOKEN_ << "\n"
@@ -144,9 +144,6 @@ public:
   void add_sensor(const std::string& token, const std::string& channel, const std::string& modality)
   {
     const auto iter = sensors_.emplace(std::make_pair(token, SensorBase(token, channel, modality)));
-    #ifdef DEBUG_BUILD
-      std::cout << iter.first->second << std::endl;
-    #endif
   }
 
   SensorBase& operator[](const std::string& token)
