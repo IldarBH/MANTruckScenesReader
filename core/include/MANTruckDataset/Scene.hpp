@@ -2,8 +2,6 @@
 #include "MANTruckDataset/utils.hpp"
 
 #include <string>
-#include <string_view>
-#include <cstddef>
 #include <unordered_map>
 
 namespace man::dataset::scenes {
@@ -39,14 +37,6 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& os, const Scene& scene);
-
-namespace {
-constexpr std::string_view SCENE_FIELD_NAME = "name";
-constexpr std::string_view SCENE_FIELD_DESCRIPTION = "description";
-constexpr std::string_view SCENE_FIELD_TOKEN = "token";
-constexpr std::string_view SCENE_FIELD_FIRST_SAMPLE_TOKEN = "first_sample_token";
-constexpr std::string_view SCENE_FIELD_LAST_SAMPLE_TOKEN = "last_sample_token";
-}
 
 class SceneManager {
 public:

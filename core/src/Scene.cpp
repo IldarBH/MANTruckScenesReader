@@ -1,6 +1,16 @@
 #include "MANTruckDataset/Scene.hpp"
 
+#include <string_view>
+
 namespace man::dataset::scenes {
+
+namespace {
+  constexpr std::string_view SCENE_FIELD_NAME = "name";
+  constexpr std::string_view SCENE_FIELD_DESCRIPTION = "description";
+  constexpr std::string_view SCENE_FIELD_TOKEN = "token";
+  constexpr std::string_view SCENE_FIELD_FIRST_SAMPLE_TOKEN = "first_sample_token";
+  constexpr std::string_view SCENE_FIELD_LAST_SAMPLE_TOKEN = "last_sample_token";
+}
 
 Scene::Scene(const std::string& name, const std::string& description, const Token& token, const std::string& first_sample_token, const std::string& last_sample_token)
   : NAME_(name), DESCRIPTION_(description), TOKEN_(token), FIRST_SAMPLE_TOKEN_(first_sample_token), LAST_SAMPLE_TOKEN_(last_sample_token) 
