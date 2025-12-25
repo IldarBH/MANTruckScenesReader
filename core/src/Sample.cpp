@@ -19,6 +19,15 @@ Sample::Sample(const Token& token, const Token& scene_token, const int64_t times
     this->set_next_sample(next_sample);
 }
 
+Sample::Sample(const Sample& other)
+: TOKEN_(other.TOKEN_), SCENE_TOKEN_(other.SCENE_TOKEN_), TIMESTAMP_(other.TIMESTAMP_)
+{
+  if (other.prev_sample_)
+    this->set_prev_sample(other.prev_sample_);
+  if (other.next_sample_)
+    this->set_next_sample(other.next_sample_);
+}
+
 Sample::~Sample()
 {
   if (prev_sample_)

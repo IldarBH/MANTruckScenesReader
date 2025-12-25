@@ -22,8 +22,9 @@ inline nlohmann::json read_json_file(const std::string& filepath) {
 struct Token {
   std::string value = "";
   Token() = default;
+  explicit Token(const char* v): value(v) {}
   explicit Token(const std::string& v) : value(v) {}
-  explicit Token(std::string_view v) : value(v) {}
+  explicit Token(const std::string_view v) : value(v) {}
   
   bool operator==(const Token& other) const {
     return value == other.value;

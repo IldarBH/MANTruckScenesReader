@@ -25,9 +25,10 @@ public:
     Sample* prev_sample = nullptr,
     Sample* next_sample = nullptr);
   
+  Sample(const Sample& other);
+
   ~Sample();
   
-  Sample(const Sample& other) = delete;
   Sample& operator=(const Sample& other) = delete;
 
   void set_prev_sample(Sample* prev) noexcept;
