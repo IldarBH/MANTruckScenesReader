@@ -1,4 +1,3 @@
-#pragma once
 #include "MANTruckDataset/Sample.hpp"
 
 namespace man::dataset::samples {
@@ -11,7 +10,7 @@ namespace {
   constexpr std::string_view SAMPLE_FIELD_NEXT = "next";
 }
 
-Sample::Sample(const Token& token, const Token& scene_token, const int64_t timestamp, Sample* prev_sample = nullptr, Sample* next_sample = nullptr)
+Sample::Sample(const Token& token, const Token& scene_token, const int64_t timestamp, Sample* prev_sample, Sample* next_sample)
 : TOKEN_(token), SCENE_TOKEN_(scene_token), TIMESTAMP_(timestamp)
 {
   if (prev_sample)

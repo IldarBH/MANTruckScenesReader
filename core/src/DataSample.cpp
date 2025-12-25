@@ -19,7 +19,7 @@ namespace {
 DataSample::DataSample(
   const Token& token, const Token& sample_token, const Token& ego_pose_token, const Token& calibrated_sensor_token, 
   const std::string& fileformat, const std::string& filename, const uint64_t timestamp, 
-  const Token& prev_token = Token(), const Token& next_token = Token())
+  const Token& prev_token, const Token& next_token)
   : TOKEN_(token)
   , SAMPLE_TOKEN_(sample_token)
   , EGO_POSE_TOKEN_(ego_pose_token)
@@ -52,7 +52,7 @@ void DataSequence::read_samples(const std::string& filename, const std::vector<T
 void DataSequence::add_sample(
   const Token& token, const Token& sample_token, const Token& ego_pose_token, const Token& calibrated_sensor_token, 
   const std::string& fileformat, const std::string& filename, const uint64_t timestamp,
-  const Token& prev_token = Token(), const Token& next_token = Token())
+  const Token& prev_token, const Token& next_token)
 {
   if (samples_map_.find(token) != samples_map_.end()) {
     throw std::invalid_argument("Sample with token " + token.value + " already exists.");

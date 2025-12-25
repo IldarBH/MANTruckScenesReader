@@ -9,7 +9,7 @@ namespace {
   constexpr std::string_view LIDAR_MODALITY = "lidar";
 }
 
-DataItem::DataItem(const size_t timestamp, const std::string& filename, const DataItem* prev = nullptr, const DataItem* next = nullptr)
+DataItem::DataItem(const size_t timestamp, const std::string& filename, const DataItem* prev, const DataItem* next)
   : TIMESTAMP_(timestamp), FILENAME_(filename)
 {}
 
@@ -73,7 +73,7 @@ std::ostream& operator<<(std::ostream& os, const SensorBase& sensor)
   return os;
 }
 
-void SensorManager::read_sensors(const std::string& filename, const std::vector<Token>& filter_tokens = {})
+void SensorManager::read_sensors(const std::string& filename, const std::vector<Token>& filter_tokens)
 {
   const std::unordered_set<Token> filter_set(filter_tokens.begin(), filter_tokens.end());
   const auto json_file = read_json_file(filename);

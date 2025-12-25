@@ -13,9 +13,13 @@ find_package(OpenCV REQUIRED)
 file(GLOB_RECURSE HEADERS 
   "${CMAKE_CURRENT_SOURCE_DIR}/include/MANTruckDataset/*.hpp"
 )
+file(GLOB_RECURSE SOURCES 
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+)
 add_library(${PROJECT_NAME} 
   SHARED
     ${HEADERS}
+    ${SOURCES}
 )
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -44,7 +48,7 @@ endif()
 ##                               BUILD TESTS                             ##
 ###########################################################################
 
-if (BUILD_TESTING)
+if (BUILD_TESTS)
   add_subdirectory(test)
 endif()
 
@@ -95,4 +99,7 @@ install(
 ##                           BUILD PYTHON BINDINGS                       ##
 ###########################################################################
 
-add_subdirectory(python)
+if (BUILD_PYBINDS)
+  add_subdirectory(python)
+endif()
+
