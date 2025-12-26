@@ -31,18 +31,6 @@ struct Token {
   }
 };
 
-struct TokenHash {
-  size_t operator()(const Token& t) const {
-    return std::hash<std::string>{}(t.value);
-  }
-};
-
-struct TokenEqual {
-  bool operator()(const Token& a, const Token& b) const {
-    return a.value == b.value;
-  }
-};
-
 inline std::ostream& operator<<(std::ostream& os, const Token& token) {
   os << token.value;
   return os;

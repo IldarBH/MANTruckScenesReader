@@ -105,7 +105,7 @@ private:
   // Primary storage (maintains insertion order, enables index access)
   std::vector<SensorBase::SPtr> sensors_vec_;
   // Secondary index (token → sensor)
-  std::unordered_map<Token, SensorBase::SPtr, TokenHash, TokenEqual> sensors_by_token_;
+  std::unordered_map<Token, SensorBase::SPtr> sensors_by_token_;
   // Secondary index (channel → sensor)
   // std::unordered_map<std::string, SensorBase::SPtr> sensors_by_channel_;
 };
