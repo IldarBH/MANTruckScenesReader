@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 set(PROJECT_NAME_PYTHON MANTruckDatasetPy)
-set(PROJECT_VERSION 0.1.0)
 
 find_package(pybind11 REQUIRED)
 
@@ -11,7 +10,7 @@ find_package(pybind11 REQUIRED)
 pybind11_add_module(${PROJECT_NAME_PYTHON}
   src/py_bindings.cpp
   src/utils_bindings.cpp
-  # src/scene_bindings.cpp
+  src/scene_bindings.cpp
   # src/sample_bindings.cpp
   # src/sensor_bindings.cpp
   # src/dataset_bindings.cpp
@@ -19,12 +18,6 @@ pybind11_add_module(${PROJECT_NAME_PYTHON}
 target_link_libraries(${PROJECT_NAME_PYTHON}
   PRIVATE
     MANTruckDataset
-)
-set_target_properties(${PROJECT_NAME_PYTHON}
-  PROPERTIES
-    CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
 )
 
 ###########################################################################

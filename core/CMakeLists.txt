@@ -53,6 +53,14 @@ if (BUILD_TESTS)
 endif()
 
 ###########################################################################
+##                           BUILD PYTHON BINDINGS                       ##
+###########################################################################
+
+if (BUILD_PYBINDS)
+  add_subdirectory(python)
+endif()
+
+###########################################################################
 ##                             INSTALL LIBRIARY                          ##
 ###########################################################################
 
@@ -94,12 +102,3 @@ install(
     "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
 )
-
-###########################################################################
-##                           BUILD PYTHON BINDINGS                       ##
-###########################################################################
-
-if (BUILD_PYBINDS)
-  add_subdirectory(python)
-endif()
-
