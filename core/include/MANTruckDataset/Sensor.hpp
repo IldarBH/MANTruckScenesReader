@@ -95,6 +95,8 @@ public:
 
   auto begin() { return sensors_vec_.begin(); }
   auto end() { return sensors_vec_.end(); }
+  auto begin() const { return sensors_vec_.begin(); }
+  auto end() const { return sensors_vec_.end(); }
   auto cbegin() const { return sensors_vec_.cbegin(); }
   auto cend() const { return sensors_vec_.cend(); }
 

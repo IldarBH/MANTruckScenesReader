@@ -23,7 +23,7 @@ int main(int argc, char** argv){
   };
   man_ds::MANTruckDataset dataset(datasets_path.string(), dataset_name, scene_token, sensor_tokens);
   const auto sensor_manager = dataset.get_sensor_manager();
-  const auto prime_sensor = sensor_manager[sensor_tokens[0]];
+  const auto prime_sensor = sensor_manager[man_ds::Token(sensor_tokens[0])];
   
   std::cout << "Sensor info:\n" << prime_sensor << std::endl;
   const auto data_item = prime_sensor[0];
