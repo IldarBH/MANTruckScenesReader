@@ -11,11 +11,11 @@ namespace man_ds = man::dataset;
 void init_dataset_bindings(py::module &m) {
   py::class_<man_ds::MANTruckDataset>(m, "MANTruckDataset",
     "Main class for accessing the MAN Truck Dataset")
-    .def(py::init<const std::string&, const std::string&, const std::string&, const std::vector<std::string>&>(),
+    .def(py::init<const std::string&, const std::string&, const man_ds::Token&, const std::vector<man_ds::Token>&>(),
       py::arg("datasets_folder"),
       py::arg("dataset_name"),
       py::arg("scene_token"),
-      py::arg("sensor_tokens") = std::vector<std::string>{})
+      py::arg("sensor_tokens") = std::vector<man_ds::Token>{})
     .def("get_sensor_manager",
       &man_ds::MANTruckDataset::get_sensor_manager,
       py::return_value_policy::reference_internal,

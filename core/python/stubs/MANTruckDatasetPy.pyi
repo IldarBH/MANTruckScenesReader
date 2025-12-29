@@ -77,28 +77,28 @@ class SensorManager:
     def __iter__(self) -> Iterator[SensorBase]: ...
 
 
-# class MANTruckDataset:
-#     def __init__(
-#         self,
-#         datasets_folder: str,
-#         dataset_name: str,
-#         scene_token: str,
-#         sensor_tokens: Optional[List[str]] = []
-#     ) -> None:
-#         """Initialize MANTruckDataset.
+class MANTruckDataset:
+    def __init__(
+        self,
+        datasets_folder: str,
+        dataset_name: str,
+        scene_token: Token,
+        sensor_tokens: Optional[List[Token]] = []
+    ) -> None:
+        """Initialize MANTruckDataset.
         
-#         Args:
-#             datasets_folder: Path to datasets root folder
-#             dataset_name: Name of the dataset
-#             scene_token: Token of the scene to load
-#             sensor_tokens: Optional list of sensor tokens to filter
-#         """
-#         ...
+        Args:
+            datasets_folder: Path to datasets root folder
+            dataset_name: Name of the dataset
+            scene_token: Token of the scene to load
+            sensor_tokens: Optional list of sensor tokens to filter
+        """
+        ...
     
-#     def get_sensor_manager(self) -> SensorManager:
-#         """Get the sensor manager containing all loaded sensors.
+    def get_sensor_manager(self) -> SensorManager:
+        """Get the sensor manager containing all loaded sensors.
         
-#         Returns:
-#             SensorManager instance with all loaded sensors
-#         """
-#         ...
+        Returns:
+            SensorManager instance with all loaded sensors
+        """
+        ...
