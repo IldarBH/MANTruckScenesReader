@@ -111,8 +111,12 @@ void SensorManager::parse_json_(const nlohmann::json& data, const std::unordered
     const Token token(item.at(TOKEN_KEY).get<std::string>());
     const std::string channel(item.at(CHANNEL_KEY).get<std::string>());
     const std::string modality(item.at(MODALITY_KEY).get<std::string>());
-    if (!filter_tokens.empty() && (filter_tokens.find(token) != filter_tokens.end())) {
-      add_sensor(token, channel, modality);
+    if (!filter_tokens.empty()) {
+      if (filter_tokens.find(token) != filter_tokens.end()) {
+        this->add_sensor(token, channel, modality);
+      }
+    } else {
+      this->add_sensor(token, channel, modality);
     }
   }
 }

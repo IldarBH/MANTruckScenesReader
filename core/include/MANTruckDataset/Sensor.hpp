@@ -95,8 +95,8 @@ public:
 
   auto begin() { return sensors_vec_.begin(); }
   auto end() { return sensors_vec_.end(); }
-  auto begin() const { return sensors_vec_.cbegin(); }
-  auto end() const { return sensors_vec_.cend(); }
+  auto cbegin() const { return sensors_vec_.cbegin(); }
+  auto cend() const { return sensors_vec_.cend(); }
 
 private:
   void parse_json_(const nlohmann::json& data, const std::unordered_set<Token>& filter_tokens);
