@@ -30,7 +30,8 @@ int main(int argc, char** argv){
   const std::string scene_file(dataset_path / "v1.0-mini" / "scene.json");
   man_ds::scenes::SceneManager scene_manager;
   scene_manager.read_scenes(scene_file);
-  const auto& scene = scene_manager[0];
+  const auto fscene_iter = scene_manager.begin();
+  const auto& scene = scene_manager[fscene_iter->first];
   std::cout << scene << std::endl;
 
   const std::string sample_file(dataset_path / "v1.0-mini" / "sample.json");
@@ -50,7 +51,7 @@ int main(int argc, char** argv){
     const auto& calibrated_sensor_token = data_sample->get_calibrated_sensor_token();
     const auto& calibrated_sensor = calibration_manager[calibrated_sensor_token];
     const auto& sensor_token = calibrated_sensor.get_sensor_token();
-    auto& sensor = sensor_manager[sensor_token];
+    auto& sensor = sensor_manager[man_ds::Token(sensor_token)];
     sensor.add_file(data_sample->get_filename(), data_sample->get_timestamp());
   }
   const auto& sensor = select_sensor(sensor_manager);

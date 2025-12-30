@@ -4,10 +4,15 @@
 
 [Download page](https://brandportal.man/d/QSf8mPdU5Hgj/downloads#/-/dataset)
 
+### Configure
+
+```
+cmake -DCMAKE_BUILD_TYPE=Debug -BUILD_TESTS=ON -DBUILD_PYBINDS=ON -DBUILD_EXAMPLES=ON ..
+```
+
 ### Build
 
 ```
-cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON .. && \
 cmake --build . 
 ```
 

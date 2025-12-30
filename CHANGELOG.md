@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 # [Unreleased]
 
+## [0.4.0]
+
+### New Features
+- Replaced token string type by special Token structure
+- Update tests, examples and pybindings
+
 ## [0.3.0]
 
 ### New Features

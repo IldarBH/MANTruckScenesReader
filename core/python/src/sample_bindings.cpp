@@ -6,13 +6,14 @@ namespace py = pybind11;
 namespace man_ds = man::dataset;
 
 void init_sample_bindings(py::module &m) {
-  py::class_<man_ds::samples::Sample, man_ds::samples::Sample::SPtr>(m, "Sample",
-    "A sample object representing a timestamped measurement in a scene")
-    .def(py::init<const std::string&, const std::string&, const int64_t>(),
-      py::arg("token"),
-      py::arg("scene_token"),
-      py::arg("timestamp"),
-      "Initialize a Sample object")
+  py::class_<man_ds::samples::Sample, man_ds::samples::Sample::SPtr> sample(m, "Sample",
+    "A sample object representing a timestamped measurement in a scene");
+  sample.def(py::init<const man_ds::Token&, const man_ds::Token&, const int64_t>(),
+    py::arg("token"), py::arg("scene_token"), py::arg("timestamp"), 
+    "Initialize a Sample object");
+  sample.def(py::init<const man_ds::samples::Sample>(),
+    py::arg("sample"), "Initialize a Sample object");
+  sample
     .def("get_token", &man_ds::samples::Sample::get_token,
       "Get the sample token")
     .def("get_scene_token", &man_ds::samples::Sample::get_scene_token,
@@ -30,30 +31,16 @@ void init_sample_bindings(py::module &m) {
       "Set the previous sample in the sequence")
     .def("set_next_sample", &man_ds::samples::Sample::set_next_sample,
       py::arg("next"),
-      "Set the next sample in the sequence")
-    .def("__repr__",
-      [](const man_ds::samples::Sample &s) {
-        return "<Sample token='" + s.get_token() + "' scene_token='" + 
-               s.get_scene_token() + "' timestamp=" + std::to_string(s.get_timestamp()) + ">";
-      });
+      "Set the next sample in the sequence");
 
   py::class_<man_ds::samples::SampleSequence>(m, "SampleSequence",
     "Manager for handling a sequence of samples in a scene")
     .def(py::init<>())
     .def("read_samples", &man_ds::samples::SampleSequence::read_samples,
-      py::arg("filename"),
-      py::arg("scene_token"),
+      py::arg("filename"), py::arg("scene_token"),
       "Read samples from a JSON file filtered by scene token")
-    .def("add_sample",
-      (void (man_ds::samples::SampleSequence::*)(
-        const std::string&, const std::string&, const int64_t, 
-        const std::string&, const std::string&))
-      &man_ds::samples::SampleSequence::add_sample,
-      py::arg("token"),
-      py::arg("scene_token"),
-      py::arg("timestamp"),
-      py::arg("prev_token") = "",
-      py::arg("next_token") = "",
+    .def("add_sample", &man_ds::samples::SampleSequence::add_sample,
+      py::arg("token"), py::arg("scene_token"), py::arg("timestamp"), py::arg("prev_token"), py::arg("next_token"),
       "Add a sample to the sequence with optional prev/next linking")
     .def("size", &man_ds::samples::SampleSequence::size,
       "Get the number of samples in the sequence")
@@ -68,7 +55,7 @@ void init_sample_bindings(py::module &m) {
       "Get list of all sample tokens")
     .def("__iter__",
       [](const man_ds::samples::SampleSequence &seq) {
-        return py::make_iterator(seq.begin(), seq.end());
+        return py::make_iterator(seq.cbegin(), seq.cend());
       },
       py::keep_alive<0, 1>(),
       "Iterate through all samples in sequence");
