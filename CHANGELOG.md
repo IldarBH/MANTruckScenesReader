@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 # [Unreleased]
 
+## [0.5.0]
+
+### New Features
+- Access scenes list via SceneManager.get_scenes() method.
+
+### Added
+- Function annotations for SceneManager.
+
 ## [0.4.0]
 
 ### New Features
