@@ -58,8 +58,10 @@ std::ostream& operator<<(std::ostream& os, const Sample& sample) {
   return os;
 }
 
-void SampleSequence::read_samples(const std::string& filename, const Token& scene_token)
+void SampleManager::read_samples(const std::string& filename, const Token& scene_token)
 {
+  samples_vec_.clear();
+  samples_map_.clear();
   const auto data = read_json_file(filename);
   for (const auto& item : data) {
     const Token item_scene_token(item.at(SAMPLE_FIELD_SCENE_TOKEN).get<std::string>());
@@ -73,7 +75,9 @@ void SampleSequence::read_samples(const std::string& filename, const Token& scen
   }
 }
 
-void SampleSequence::add_sample(const Token& token, const Token& scene_token,const int64_t timestamp, const Token& prev_token,const Token& next_token)
+void SampleManager::add_sample(
+  const Token& token, const Token& scene_token, const int64_t timestamp, 
+  const Token& prev_token, const Token& next_token)
 {
   if (samples_map_.find(token) != samples_map_.end()) {
     throw std::invalid_argument("Sample with token " + token.value + " already exists.");
@@ -92,19 +96,9 @@ void SampleSequence::add_sample(const Token& token, const Token& scene_token,con
   }
 }
 
-const Sample& SampleSequence::operator[](std::size_t index) const
+const Sample& SampleManager::operator[](std::size_t index) const
 {
   return *samples_vec_.at(index);
-}
-
-std::vector<Token> SampleSequence::get_tokens() const noexcept
-{
-  std::vector<Token> tokens;
-  tokens.reserve(samples_vec_.size());
-  for (const auto& sample_ptr : samples_vec_) {
-    tokens.push_back(sample_ptr->get_token());
-  }
-  return tokens;
 }
 
 }

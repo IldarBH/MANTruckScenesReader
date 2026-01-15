@@ -7,9 +7,11 @@ All notable changes to this project will be documented in this file.
 
 ### New Features
 - Access scenes list via SceneManager.get_scenes() method.
+- Access samples list via SampleManager.get_samples() method.
+- Removed SampleManager.get_samples() as Token vector.
 
 ### Added
-- Function annotations for SceneManager.
+- Function annotations for SceneManager, SampleManager.
 
 ## [0.4.0]
 
