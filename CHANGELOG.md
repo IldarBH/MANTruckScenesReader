@@ -10,8 +10,12 @@ All notable changes to this project will be documented in this file.
 - Access samples list via SampleManager.get_samples() method.
 - Removed SampleManager.get_samples() as Token vector.
 
+### Enhancements
+- Replaced DataSequence with DataManager class
+- Replaced SampleSequence with SampleManager class.
+
 ### Added
-- Function annotations for SceneManager, SampleManager.
+- Function annotations for SceneManager, SampleManager, DataManager.
 
 ## [0.4.0]
 
