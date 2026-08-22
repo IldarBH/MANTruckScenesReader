@@ -61,10 +61,9 @@ public:
    * @brief Read data samples from a JSON file, filtering by sample tokens.
    * Clear already loaded samples before reading.
    * @param filename Path to the JSON file.
-   * @param sample_token Vector of sample tokens to filter the data samples.
    * @return True if all samples are loaded, false otherwise.
    */
-  bool read_samples(const std::string& filename, const std::vector<Token>& sample_tokens);
+  bool read_samples(const std::string& filename);
 
   /**
    * @brief Add a data sample to the manager.
@@ -102,7 +101,7 @@ public:
   size_t size() const noexcept { return samples_vec_.size(); }
 
 private:
-  void parse_json_(const nlohmann::json& data, const std::unordered_set<Token>& sample_tokens);
+  void parse_json_(const nlohmann::json& data);
 
 private:
   std::unordered_set<Token> waiting_list_;

@@ -1,6 +1,8 @@
 #include <MANTruckDataset/Calibration.hpp>
 
 #include <string_view>
+#include <iostream>
+#include <sstream>
 
 namespace man::dataset::calibration {
 
@@ -27,31 +29,20 @@ std::ostream& operator<<(std::ostream& os, const Calibration& calib)
   return os;
 }
 
-void CalibrationManager::read_calibrations(const std::string& filename, const std::vector<Token>& sensor_tokens)
+void CalibrationManager::read_calibrations(const std::string& filename)
 {
-  std::unordered_set<Token> filter_set(sensor_tokens.begin(), sensor_tokens.end());
+  calibrations_.clear();
   const auto json_file = read_json_file(filename);
-  this->parse_json_(json_file, filter_set);
+  this->parse_json_(json_file);
 }
 
-void CalibrationManager::add_calibration(const Token& token, const Token& sensor_token, const std::vector<double>& translation, const std::vector<double>& rotation)
-{
-  const auto iter = calibrations_.emplace(
-    std::make_pair(token, Calibration(token, sensor_token, translation, rotation)));
-  #ifdef DEBUG_BUILD
-    std::cout << iter.first->second << std::endl;
-  #endif
-}
-
-void CalibrationManager::parse_json_(const nlohmann::json& data, const std::unordered_set<Token>& filter_tokens)
+void CalibrationManager::parse_json_(const nlohmann::json& data)
 {
   for (const auto& item : data) {
+    const Token calib_token(item.at(TOKEN_KEY).get<std::string>());
     const Token sensor_token(item.at(SENSOR_TOKEN_KEY).get<std::string>());
-    if (!filter_tokens.empty() && (filter_tokens.find(sensor_token) == filter_tokens.end())) {
-      continue;
-    }
     add_calibration(
-      Token(item.at(TOKEN_KEY).get<std::string>()), 
+      calib_token, 
       sensor_token, 
       item["translation"].get<std::vector<double>>(), 
       item["rotation"].get<std::vector<double>>()
@@ -59,18 +50,30 @@ void CalibrationManager::parse_json_(const nlohmann::json& data, const std::unor
   }
 }
 
-bool CalibrationManager::token_exists(const Token& token) const noexcept 
-{ 
-  return calibrations_.find(token) != calibrations_.end(); 
+void CalibrationManager::add_calibration(const Token& token, const Token& sensor_token, 
+  const std::vector<double>& translation, const std::vector<double>& rotation)
+{
+  calibrations_.emplace_back(std::make_shared<Calibration>(token, sensor_token, translation, rotation));
+  token2calibration_.emplace(token, calibrations_.back());
+  sensor_token2calibration_.emplace(sensor_token, calibrations_.back());
 }
 
-const Calibration& CalibrationManager::operator[](const Token& token) const
+const Calibration& CalibrationManager::get_calibration(const Token& token) const
 {
-  const auto iter = calibrations_.find(token);
-  if (iter == calibrations_.end()) {
-    throw std::runtime_error("Calibration with token " + token.value + " not found.");
+  const auto it = token2calibration_.find(token);
+  if (it == token2calibration_.end()) {
+    throw std::runtime_error("Calibration not found for token: " + token.value);
   }
-  return iter->second;
+  return *(it->second.lock());
+}
+
+const Calibration& CalibrationManager::get_calibration_by_sensor(const Token& token) const
+{
+  const auto it = sensor_token2calibration_.find(token);
+  if (it == sensor_token2calibration_.end()) {
+    throw std::runtime_error("Calibration not found for sensor token: " + token.value);
+  }
+  return *(it->second.lock());
 }
 
 }

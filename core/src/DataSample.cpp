@@ -42,14 +42,13 @@ std::ostream& operator<<(std::ostream& os, const DataSample& sample)
   return os;
 }
 
-bool DataManager::read_samples(const std::string& filename, const std::vector<Token>& sample_tokens)
+bool DataManager::read_samples(const std::string& filename)
 {
   samples_vec_.clear();
   samples_map_.clear();
   waiting_list_.clear();
   const auto data = read_json_file(filename);
-  const std::unordered_set<Token> sorted_tokens(sample_tokens.begin(), sample_tokens.end());
-  this->parse_json_(data, sorted_tokens);
+  this->parse_json_(data);
   return waiting_list_.empty();
 }
 
@@ -75,14 +74,11 @@ void DataManager::add_sample(
   }
 }
 
-void DataManager::parse_json_(const nlohmann::json& data, const std::unordered_set<Token>& sample_tokens)
+void DataManager::parse_json_(const nlohmann::json& data)
 {
   samples_vec_.reserve(data.size());
   for (const auto& item : data) {
     const auto item_sample_token = Token(item.at(SAMPLE_FIELD_SAMPLE_TOKEN).get<std::string>());
-    if (sample_tokens.find(item_sample_token) == sample_tokens.end()) {
-      continue;
-    }
     auto prev_token = Token(item.at(SAMPLE_FIELD_PREV).get<std::string>());
     if (!prev_token.value.empty() && (samples_map_.find(prev_token) == samples_map_.end())) {
       waiting_list_.insert(std::move(prev_token));

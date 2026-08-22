@@ -42,6 +42,8 @@ std::ostream& operator<<(std::ostream& os, const Scene& scene)
 
 void SceneManager::read_scenes(const std::string& filename)
 {
+  scenes_.clear();
+  scenes_map_.clear();
   const auto data = read_json_file(filename);
   scenes_.reserve(data.size());
   scenes_map_.reserve(data.size());

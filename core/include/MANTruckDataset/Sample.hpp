@@ -56,12 +56,12 @@ public:
   SampleManager() = default;
 
   /**
-   * @brief Read samples from a CSV file and add them to the manager.
+   * @brief Read samples from a json file and add them to the manager.
    * Clear existing samples before reading.
    * @param filename Path to the CSV file.
    * @param scene_token Token of the scene to which the samples belong.
    */
-  void read_samples(const std::string& filename, const Token& scene_token);
+  void read_samples(const std::string& filename);
 
   /**
    * @brief Add a sample to the manager.

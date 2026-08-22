@@ -58,20 +58,20 @@ std::ostream& operator<<(std::ostream& os, const Sample& sample) {
   return os;
 }
 
-void SampleManager::read_samples(const std::string& filename, const Token& scene_token)
+void SampleManager::read_samples(const std::string& filename)
 {
   samples_vec_.clear();
   samples_map_.clear();
   const auto data = read_json_file(filename);
+  samples_vec_.reserve(data.size());
+  samples_map_.reserve(data.size());
   for (const auto& item : data) {
     const Token item_scene_token(item.at(SAMPLE_FIELD_SCENE_TOKEN).get<std::string>());
-    if (item_scene_token == scene_token) {
-      const Token sample_token(item.at(SAMPLE_FIELD_TOKEN).get<std::string>());
-      const Token prev_token(item.at(SAMPLE_FIELD_PREV).get<std::string>());
-      const size_t timestamp = item.at(SAMPLE_FIELD_TIMESTAMP).get<int64_t>();
-      this->add_sample(sample_token, item_scene_token, timestamp, prev_token);
-      // Next token will be linked when its sample is added
-    }
+    const Token sample_token(item.at(SAMPLE_FIELD_TOKEN).get<std::string>());
+    const Token prev_token(item.at(SAMPLE_FIELD_PREV).get<std::string>());
+    const size_t timestamp = item.at(SAMPLE_FIELD_TIMESTAMP).get<int64_t>();
+    this->add_sample(sample_token, item_scene_token, timestamp, prev_token);
+    // Next token will be linked when its sample is added
   }
 }
 
