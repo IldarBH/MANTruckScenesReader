@@ -11,7 +11,7 @@ find_package(OpenCV REQUIRED)
 
 # Automatically collect headers from include directory
 file(GLOB_RECURSE HEADERS 
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/MANTruckDataset/*.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
 )
 file(GLOB_RECURSE SOURCES 
   "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
@@ -50,14 +50,6 @@ endif()
 
 if (BUILD_TESTS)
   add_subdirectory(test)
-endif()
-
-###########################################################################
-##                           BUILD PYTHON BINDINGS                       ##
-###########################################################################
-
-if (BUILD_PYBINDS)
-  add_subdirectory(python)
 endif()
 
 ###########################################################################
