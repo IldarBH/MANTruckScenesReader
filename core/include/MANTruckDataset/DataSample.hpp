@@ -94,19 +94,22 @@ public:
    */
   bool is_complete() const noexcept { return waiting_list_.empty(); }
   
-  auto begin() noexcept { return samples_vec_.begin(); }
-  auto end() noexcept { return samples_vec_.end(); }
-  auto cbegin() const noexcept { return samples_vec_.cbegin(); }
-  auto cend() const noexcept { return samples_vec_.cend(); }
-  size_t size() const noexcept { return samples_vec_.size(); }
+  auto begin() noexcept { return data_vec_.begin(); }
+  auto end() noexcept { return data_vec_.end(); }
+  auto cbegin() const noexcept { return data_vec_.cbegin(); }
+  auto cend() const noexcept { return data_vec_.cend(); }
+  size_t size() const noexcept { return data_vec_.size(); }
+
+  const auto& get_data_by_sample_token(const Token& sample_token) const { return data_by_sample_token_.at(sample_token); }
 
 private:
   void parse_json_(const nlohmann::json& data);
 
 private:
   std::unordered_set<Token> waiting_list_;
-  std::vector<DataSample::SPtr> samples_vec_;
-  std::unordered_map<Token, DataSample::WPtr> samples_map_;
+  std::vector<DataSample::SPtr> data_vec_;
+  std::unordered_map<Token, DataSample::WPtr> data_by_token_;
+  std::unordered_map<Token, std::vector<DataSample::WPtr>> data_by_sample_token_;
 };
 
 }

@@ -29,6 +29,8 @@ public:
   auto& get_calibration_manager() const noexcept { return calibration_manager_; }
   auto& get_sample_manager() const noexcept { return sample_manager_; }
   auto& get_data_manager() const noexcept { return data_manager_; }
+
+  std::vector<data_samples::DataSample::WPtr> get_data(const scenes::Scene& scene, const sensors::SensorBase& sensor) const;
   
 private:
   const fs::path DATASET_PATH_;

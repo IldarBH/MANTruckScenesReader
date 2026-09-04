@@ -56,14 +56,15 @@ public:
     const std::vector<double>& rotation);
 
   const Calibration& get_calibration(const Token& token) const;
-  const Calibration& get_calibration_by_sensor(const Token& token) const;
+  const Calibration& get_calibration_by_sensor(const Token& sensor_token) const;
+
 private:
   void parse_json_(const nlohmann::json& data);
 
 private:
   std::vector<Calibration::SPtr> calibrations_;
-  std::unordered_map<Token, Calibration::WPtr> token2calibration_;
-  std::unordered_map<Token, Calibration::WPtr> sensor_token2calibration_;
+  std::unordered_map<Token, Calibration::WPtr> calibration_by_token_;
+  std::unordered_map<Token, Calibration::WPtr> calibration_by_sensor_token_;
 };
 
 } // namespace

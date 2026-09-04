@@ -61,10 +61,12 @@ std::ostream& operator<<(std::ostream& os, const Sample& sample) {
 void SampleManager::read_samples(const std::string& filename)
 {
   samples_vec_.clear();
-  samples_map_.clear();
+  samples_by_token_.clear();
+  samples_by_scene_token_.clear();
   const auto data = read_json_file(filename);
   samples_vec_.reserve(data.size());
-  samples_map_.reserve(data.size());
+  samples_by_token_.reserve(data.size());
+  samples_by_scene_token_.reserve(data.size());
   for (const auto& item : data) {
     const Token item_scene_token(item.at(SAMPLE_FIELD_SCENE_TOKEN).get<std::string>());
     const Token sample_token(item.at(SAMPLE_FIELD_TOKEN).get<std::string>());
@@ -79,18 +81,23 @@ void SampleManager::add_sample(
   const Token& token, const Token& scene_token, const int64_t timestamp, 
   const Token& prev_token, const Token& next_token)
 {
-  if (samples_map_.find(token) != samples_map_.end()) {
+  if (samples_by_token_.find(token) != samples_by_token_.end()) {
     throw std::invalid_argument("Sample with token " + token.value + " already exists.");
   }
   samples_vec_.emplace_back(std::make_shared<Sample>(token, scene_token, timestamp));
-  samples_map_.emplace(std::make_pair(token, samples_vec_.back()));
+  samples_by_token_.emplace(std::make_pair(token, samples_vec_.back()));
+  if (auto iter = samples_by_scene_token_.find(scene_token); iter == samples_by_scene_token_.end()) {
+    samples_by_scene_token_[scene_token] = {samples_vec_.back()};
+  } else {
+    iter->second.push_back(samples_vec_.back());
+  }
   if (!prev_token.value.empty()) {
-    const auto& prev_sample = samples_map_.at(prev_token).lock();
+    const auto& prev_sample = samples_by_token_.at(prev_token).lock();
     prev_sample->set_next_sample(samples_vec_.back().get());
     samples_vec_.back()->set_prev_sample(prev_sample.get());
   }
   if (!next_token.value.empty()) {
-    const auto& next_sample = samples_map_.at(next_token).lock();
+    const auto& next_sample = samples_by_token_.at(next_token).lock();
     next_sample->set_prev_sample(samples_vec_.back().get());
     samples_vec_.back()->set_next_sample(next_sample.get());
   }

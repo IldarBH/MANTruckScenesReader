@@ -78,6 +78,7 @@ public:
    * @brief Get vector of all sample tokens managed.
    */
   const auto& get_samples() const noexcept { return samples_vec_; }
+  const auto& get_samples_by_scene(const Token& scene_token) const {return samples_by_scene_token_.at(scene_token);}
   
   const Sample& operator[](std::size_t index) const;
   auto begin() noexcept { return samples_vec_.begin(); }
@@ -88,6 +89,7 @@ public:
 
 private:
   std::vector<Sample::SPtr> samples_vec_;
-  std::unordered_map<Token, Sample::WPtr> samples_map_;
+  std::unordered_map<Token, Sample::WPtr> samples_by_token_;
+  std::unordered_map<Token, std::vector<Sample::WPtr>> samples_by_scene_token_;
 };
 }

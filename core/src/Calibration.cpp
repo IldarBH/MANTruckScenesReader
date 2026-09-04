@@ -54,14 +54,14 @@ void CalibrationManager::add_calibration(const Token& token, const Token& sensor
   const std::vector<double>& translation, const std::vector<double>& rotation)
 {
   calibrations_.emplace_back(std::make_shared<Calibration>(token, sensor_token, translation, rotation));
-  token2calibration_.emplace(token, calibrations_.back());
-  sensor_token2calibration_.emplace(sensor_token, calibrations_.back());
+  calibration_by_token_.emplace(token, calibrations_.back());
+  calibration_by_sensor_token_.emplace(sensor_token, calibrations_.back());
 }
 
 const Calibration& CalibrationManager::get_calibration(const Token& token) const
 {
-  const auto it = token2calibration_.find(token);
-  if (it == token2calibration_.end()) {
+  const auto it = calibration_by_token_.find(token);
+  if (it == calibration_by_token_.end()) {
     throw std::runtime_error("Calibration not found for token: " + token.value);
   }
   return *(it->second.lock());
@@ -69,8 +69,8 @@ const Calibration& CalibrationManager::get_calibration(const Token& token) const
 
 const Calibration& CalibrationManager::get_calibration_by_sensor(const Token& token) const
 {
-  const auto it = sensor_token2calibration_.find(token);
-  if (it == sensor_token2calibration_.end()) {
+  const auto it = calibration_by_sensor_token_.find(token);
+  if (it == calibration_by_sensor_token_.end()) {
     throw std::runtime_error("Calibration not found for sensor token: " + token.value);
   }
   return *(it->second.lock());
