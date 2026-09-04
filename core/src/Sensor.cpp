@@ -73,11 +73,10 @@ std::ostream& operator<<(std::ostream& os, const SensorBase& sensor)
   return os;
 }
 
-void SensorManager::read_sensors(const std::string& filename, const std::vector<Token>& filter_tokens)
+void SensorManager::read_sensors(const std::string& filename)
 {
-  const std::unordered_set<Token> filter_set(filter_tokens.begin(), filter_tokens.end());
   const auto json_file = read_json_file(filename);
-  this->parse_json_(json_file, filter_set);
+  this->parse_json_(json_file);
 }
 
 void SensorManager::add_sensor(const Token& token, const std::string& channel, const std::string& modality)
@@ -87,37 +86,13 @@ void SensorManager::add_sensor(const Token& token, const std::string& channel, c
   sensors_by_token_[token] = sensor;                  // Index by token
 }
 
-SensorBase& SensorManager::operator[](const Token& token)
-{
-  const auto iter = sensors_by_token_.find(token);
-  if (iter == sensors_by_token_.end()) {
-    throw std::runtime_error("Sensor with token " + token.value + " not found.");
-  }
-  return *(iter->second);
-}
-
-const SensorBase& SensorManager::operator[](const Token& token) const
-{
-  const auto iter = sensors_by_token_.find(token);
-  if (iter == sensors_by_token_.end()) {
-    throw std::runtime_error("Sensor with token " + token.value + " not found.");
-  }
-  return *(iter->second);
-}
-
-void SensorManager::parse_json_(const nlohmann::json& data, const std::unordered_set<Token>& filter_tokens)
+void SensorManager::parse_json_(const nlohmann::json& data)
 {
   for (const auto& item : data) {
     const Token token(item.at(TOKEN_KEY).get<std::string>());
     const std::string channel(item.at(CHANNEL_KEY).get<std::string>());
     const std::string modality(item.at(MODALITY_KEY).get<std::string>());
-    if (!filter_tokens.empty()) {
-      if (filter_tokens.find(token) != filter_tokens.end()) {
-        this->add_sensor(token, channel, modality);
-      }
-    } else {
-      this->add_sensor(token, channel, modality);
-    }
+    this->add_sensor(token, channel, modality);
   }
 }
 

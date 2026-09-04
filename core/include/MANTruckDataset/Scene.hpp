@@ -1,13 +1,17 @@
 #pragma once
 #include "MANTruckDataset/utils.hpp"
 
+#include <memory>
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 namespace man::dataset::scenes {
 
 class Scene {
 public:
+  using SPtr = std::shared_ptr<Scene>;
+
   Scene(const std::string& name, 
         const std::string& description, 
         const Token& token, 
@@ -42,8 +46,21 @@ class SceneManager {
 public:
   SceneManager() = default;
 
+  /**
+   * @brief Read scenes from a JSON file.
+   * @param filename Path to the JSON file.
+   */
   void read_scenes(const std::string& filename);
 
+  /**
+   * @brief Add a scene.
+   * Overload that takes string tokens.
+   * @param name Name of the scene.
+   * @param description Description of the scene.
+   * @param token Token of the scene.
+   * @param first_sample_token Token of the first sample in the scene.
+   * @param last_sample_token Token of the last sample in the scene.
+   */
   void add_scene(
     const std::string& name, 
     const std::string& description, 
@@ -51,21 +68,36 @@ public:
     const std::string& first_sample_token, 
     const std::string& last_sample_token);
 
+  /**
+   * @brief Add a scene.
+   * Overload that takes Token objects.
+   * @param name Name of the scene.
+   * @param description Description of the scene.
+   * @param token Token of the scene.
+   * @param first_sample_token Token of the first sample in the scene.
+   * @param last_sample_token Token of the last sample in the scene.
+   */
   void add_scene(
     const std::string& name, 
     const std::string& description, 
     const Token& token, 
     const Token& first_sample_token, 
     const Token& last_sample_token);
+  
+  /**
+   * @brief Get all scenes.
+   */
+  const auto& get_scenes() const noexcept { return scenes_; }
 
-  const Scene& operator[](const Token& token) const { return scenes_.at(token); }
-
-  auto size() const noexcept { return scenes_.size(); }
-  auto begin() const noexcept { return scenes_.begin(); }
-  auto end() const noexcept { return scenes_.end(); }
-  auto cbegin() const noexcept { return scenes_.cbegin(); }
-  auto cend() const noexcept { return scenes_.cend(); }
+  const auto& operator[](const size_t id) const { return scenes_[id]; }
+  const auto& operator[](const Token& token) const { return scenes_map_.at(token); }
+  auto begin() const noexcept { return scenes_map_.begin(); }
+  auto end() const noexcept { return scenes_map_.end(); }
+  auto cbegin() const noexcept { return scenes_map_.cbegin(); }
+  auto cend() const noexcept { return scenes_map_.cend(); }
+  auto size() const noexcept { return scenes_map_.size(); }
 private:
-  std::unordered_map<Token, Scene> scenes_;
+  std::vector<Scene::SPtr> scenes_;
+  std::unordered_map<Token, Scene::SPtr> scenes_map_;
 };
 }

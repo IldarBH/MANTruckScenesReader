@@ -58,53 +58,54 @@ std::ostream& operator<<(std::ostream& os, const Sample& sample) {
   return os;
 }
 
-void SampleSequence::read_samples(const std::string& filename, const Token& scene_token)
+void SampleManager::read_samples(const std::string& filename)
 {
+  samples_vec_.clear();
+  samples_by_token_.clear();
+  samples_by_scene_token_.clear();
   const auto data = read_json_file(filename);
+  samples_vec_.reserve(data.size());
+  samples_by_token_.reserve(data.size());
+  samples_by_scene_token_.reserve(data.size());
   for (const auto& item : data) {
     const Token item_scene_token(item.at(SAMPLE_FIELD_SCENE_TOKEN).get<std::string>());
-    if (item_scene_token == scene_token) {
-      const Token sample_token(item.at(SAMPLE_FIELD_TOKEN).get<std::string>());
-      const Token prev_token(item.at(SAMPLE_FIELD_PREV).get<std::string>());
-      const size_t timestamp = item.at(SAMPLE_FIELD_TIMESTAMP).get<int64_t>();
-      this->add_sample(sample_token, item_scene_token, timestamp, prev_token);
-      // Next token will be linked when its sample is added
-    }
+    const Token sample_token(item.at(SAMPLE_FIELD_TOKEN).get<std::string>());
+    const Token prev_token(item.at(SAMPLE_FIELD_PREV).get<std::string>());
+    const size_t timestamp = item.at(SAMPLE_FIELD_TIMESTAMP).get<int64_t>();
+    this->add_sample(sample_token, item_scene_token, timestamp, prev_token);
+    // Next token will be linked when its sample is added
   }
 }
 
-void SampleSequence::add_sample(const Token& token, const Token& scene_token,const int64_t timestamp, const Token& prev_token,const Token& next_token)
+void SampleManager::add_sample(
+  const Token& token, const Token& scene_token, const int64_t timestamp, 
+  const Token& prev_token, const Token& next_token)
 {
-  if (samples_map_.find(token) != samples_map_.end()) {
+  if (samples_by_token_.find(token) != samples_by_token_.end()) {
     throw std::invalid_argument("Sample with token " + token.value + " already exists.");
   }
   samples_vec_.emplace_back(std::make_shared<Sample>(token, scene_token, timestamp));
-  samples_map_.emplace(std::make_pair(token, samples_vec_.back()));
+  samples_by_token_.emplace(std::make_pair(token, samples_vec_.back()));
+  if (auto iter = samples_by_scene_token_.find(scene_token); iter == samples_by_scene_token_.end()) {
+    samples_by_scene_token_[scene_token] = {samples_vec_.back()};
+  } else {
+    iter->second.push_back(samples_vec_.back());
+  }
   if (!prev_token.value.empty()) {
-    const auto& prev_sample = samples_map_.at(prev_token).lock();
+    const auto& prev_sample = samples_by_token_.at(prev_token).lock();
     prev_sample->set_next_sample(samples_vec_.back().get());
     samples_vec_.back()->set_prev_sample(prev_sample.get());
   }
   if (!next_token.value.empty()) {
-    const auto& next_sample = samples_map_.at(next_token).lock();
+    const auto& next_sample = samples_by_token_.at(next_token).lock();
     next_sample->set_prev_sample(samples_vec_.back().get());
     samples_vec_.back()->set_next_sample(next_sample.get());
   }
 }
 
-const Sample& SampleSequence::operator[](std::size_t index) const
+const Sample& SampleManager::operator[](std::size_t index) const
 {
   return *samples_vec_.at(index);
-}
-
-std::vector<Token> SampleSequence::get_tokens() const noexcept
-{
-  std::vector<Token> tokens;
-  tokens.reserve(samples_vec_.size());
-  for (const auto& sample_ptr : samples_vec_) {
-    tokens.push_back(sample_ptr->get_token());
-  }
-  return tokens;
 }
 
 }

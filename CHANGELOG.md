@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file.
 
 # [Unreleased]
 
+## [0.5.0]
+
+### New Features
+- Access calibrations by token or by sensor token in CalibrationManager.
+- Access DataSamples samples by sample token in DataManager.
+- Access Samples by scene token in SampleManager method.
+- Access scenes list via SceneManager.get_scenes() method.
+- Removed SampleManager.get_samples() as Token vector.
+- Select DataSamples by scene and sensor in MANTruckDataset class.
+
+### Enhancements
+- Replaced DataSequence with DataManager class
+- Replaced SampleSequence with SampleManager class.
+
+### Added
+- Function annotations for SceneManager, SampleManager, DataManager.
+
 ## [0.4.0]
 
 ### New Features

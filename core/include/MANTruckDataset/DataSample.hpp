@@ -53,17 +53,30 @@ private:
 
 std::ostream& operator<<(std::ostream& os, const DataSample& sample);
 
-class DataSequence {
+class DataManager {
 public:
-  DataSequence() = default;
+  DataManager() = default;
 
   /**
    * @brief Read data samples from a JSON file, filtering by sample tokens.
+   * Clear already loaded samples before reading.
    * @param filename Path to the JSON file.
-   * @param sample_token Vector of sample tokens to filter the data samples.
+   * @return True if all samples are loaded, false otherwise.
    */
-  void read_samples(const std::string& filename, const std::vector<Token>& sample_tokens);
+  bool read_samples(const std::string& filename);
 
+  /**
+   * @brief Add a data sample to the manager.
+   * @param token Unique identifier for the data sample.
+   * @param sample_token Token of the sample associated with this data sample.
+   * @param ego_pose_token Token of the ego pose associated with this data sample.
+   * @param calibrated_sensor_token Token of the calibrated sensor associated with this data sample.
+   * @param fileformat File format of the data sample (e.g., "pcd", "png").
+   * @param filename Path to the data sample file.
+   * @param timestamp Timestamp of the data sample.
+   * @param prev_token Token of the previous data sample (optional).
+   * @param next_token Token of the next data sample (optional).
+   */
   void add_sample(
     const Token& token, 
     const Token& sample_token,
@@ -75,20 +88,28 @@ public:
     const Token& prev_token = Token(),
     const Token& next_token = Token());
 
+  /**
+   * @brief Check if all requested samples have been loaded.
+   * @return True if all samples are loaded, false otherwise.
+   */
   bool is_complete() const noexcept { return waiting_list_.empty(); }
-  size_t size() const noexcept { return samples_vec_.size(); }
-  auto begin() noexcept { return samples_vec_.begin(); }
-  auto end() noexcept { return samples_vec_.end(); }
-  auto cbegin() const noexcept { return samples_vec_.cbegin(); }
-  auto cend() const noexcept { return samples_vec_.cend(); }
+  
+  auto begin() noexcept { return data_vec_.begin(); }
+  auto end() noexcept { return data_vec_.end(); }
+  auto cbegin() const noexcept { return data_vec_.cbegin(); }
+  auto cend() const noexcept { return data_vec_.cend(); }
+  size_t size() const noexcept { return data_vec_.size(); }
+
+  const auto& get_data_by_sample_token(const Token& sample_token) const { return data_by_sample_token_.at(sample_token); }
 
 private:
-  void parse_json_(const nlohmann::json& data, const std::unordered_set<Token>& sample_tokens);
+  void parse_json_(const nlohmann::json& data);
 
 private:
   std::unordered_set<Token> waiting_list_;
-  std::vector<DataSample::SPtr> samples_vec_;
-  std::unordered_map<Token, DataSample::WPtr> samples_map_;
+  std::vector<DataSample::SPtr> data_vec_;
+  std::unordered_map<Token, DataSample::WPtr> data_by_token_;
+  std::unordered_map<Token, std::vector<DataSample::WPtr>> data_by_sample_token_;
 };
 
 }

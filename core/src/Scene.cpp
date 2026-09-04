@@ -31,7 +31,7 @@ Scene::Scene(
   const std::string& token, 
   const std::string& first_sample_token, 
   const std::string& last_sample_token)
-  : Scene(name, description, Token(token), Token(first_sample_token), Token(last_sample_token)) 
+: Scene(name, description, Token(token), Token(first_sample_token), Token(last_sample_token)) 
 {}
 
 std::ostream& operator<<(std::ostream& os, const Scene& scene) 
@@ -42,15 +42,19 @@ std::ostream& operator<<(std::ostream& os, const Scene& scene)
 
 void SceneManager::read_scenes(const std::string& filename)
 {
+  scenes_.clear();
+  scenes_map_.clear();
   const auto data = read_json_file(filename);
   scenes_.reserve(data.size());
+  scenes_map_.reserve(data.size());
   for (const auto& item : data){
     const Token token(item.at(SCENE_FIELD_TOKEN).get<std::string>());
-    if (scenes_.find(token) == scenes_.end()) {
+    if (scenes_map_.find(token) == scenes_map_.end()) {
       const auto first_sample_token = Token(item.at(SCENE_FIELD_FIRST_SAMPLE_TOKEN).get<std::string>());
       const auto last_sample_token = Token(item.at(SCENE_FIELD_LAST_SAMPLE_TOKEN).get<std::string>());
       this->add_scene(
-        item.at(SCENE_FIELD_NAME).get<std::string>(), item.at(SCENE_FIELD_DESCRIPTION).get<std::string>(),
+        item.at(SCENE_FIELD_NAME).get<std::string>(), 
+        item.at(SCENE_FIELD_DESCRIPTION).get<std::string>(),
         token, first_sample_token, last_sample_token
       );
     }
@@ -65,7 +69,7 @@ void SceneManager::add_scene(
   const std::string& first_sample_token, 
   const std::string& last_sample_token)
 {
-  scenes_.emplace(Token(token), Scene(name, description, token, first_sample_token, last_sample_token));
+  this->add_scene(name, description, Token(token), Token(first_sample_token), Token(last_sample_token));
 }
 
 void SceneManager::add_scene(
@@ -75,7 +79,8 @@ void SceneManager::add_scene(
   const Token& first_sample_token, 
   const Token& last_sample_token)
 {
-  scenes_.emplace(token, Scene(name, description, token, first_sample_token, last_sample_token));
+  scenes_.emplace_back(std::make_shared<Scene>(name, description, token, first_sample_token, last_sample_token));
+  scenes_map_.emplace(token, scenes_.back());
 }
 
 }

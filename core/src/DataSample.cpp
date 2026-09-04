@@ -42,49 +42,55 @@ std::ostream& operator<<(std::ostream& os, const DataSample& sample)
   return os;
 }
 
-void DataSequence::read_samples(const std::string& filename, const std::vector<Token>& sample_tokens)
+bool DataManager::read_samples(const std::string& filename)
 {
+  data_vec_.clear();
+  data_by_token_.clear();
+  data_by_sample_token_.clear();
+  waiting_list_.clear();
   const auto data = read_json_file(filename);
-  const std::unordered_set<Token> sorted_tokens(sample_tokens.begin(), sample_tokens.end());
-  this->parse_json_(data, sorted_tokens);
+  this->parse_json_(data);
+  return waiting_list_.empty();
 }
 
-void DataSequence::add_sample(
+void DataManager::add_sample(
   const Token& token, const Token& sample_token, const Token& ego_pose_token, const Token& calibrated_sensor_token, 
   const std::string& fileformat, const std::string& filename, const uint64_t timestamp,
   const Token& prev_token, const Token& next_token)
 {
-  if (samples_map_.find(token) != samples_map_.end()) {
+  if (data_by_token_.find(token) != data_by_token_.end()) {
     throw std::invalid_argument("Sample with token " + token.value + " already exists.");
   }
-  samples_vec_.emplace_back(std::make_shared<DataSample>(token, sample_token, ego_pose_token, calibrated_sensor_token, fileformat, filename, timestamp));
-  samples_map_.emplace(std::make_pair(token, samples_vec_.back()));
+  data_vec_.emplace_back(std::make_shared<DataSample>(token, sample_token, ego_pose_token, calibrated_sensor_token, fileformat, filename, timestamp));
+  data_by_token_.emplace(std::make_pair(token, data_vec_.back()));
+  if (auto iter = data_by_sample_token_.find(sample_token); iter == data_by_sample_token_.end()) {
+    data_by_sample_token_[sample_token] = {data_vec_.back()};
+  } else {
+    iter->second.push_back(data_vec_.back());
+  }
   if (!prev_token.value.empty()) {
-    const auto& prev_sample = samples_map_.at(prev_token).lock();
-    prev_sample->next_sample = samples_vec_.back();
-    samples_vec_.back()->prev_sample = prev_sample;
+    const auto& prev_sample = data_by_token_.at(prev_token).lock();
+    prev_sample->next_sample = data_vec_.back();
+    data_vec_.back()->prev_sample = prev_sample;
   }
   if (!next_token.value.empty()) {
-    const auto& next_sample = samples_map_.at(next_token).lock();
-    next_sample->prev_sample = samples_vec_.back();
-    samples_vec_.back()->next_sample = next_sample;
+    const auto& next_sample = data_by_token_.at(next_token).lock();
+    next_sample->prev_sample = data_vec_.back();
+    data_vec_.back()->next_sample = next_sample;
   }
 }
 
-void DataSequence::parse_json_(const nlohmann::json& data, const std::unordered_set<Token>& sample_tokens)
+void DataManager::parse_json_(const nlohmann::json& data)
 {
-  samples_vec_.reserve(data.size());
+  data_vec_.reserve(data.size());
   for (const auto& item : data) {
     const auto item_sample_token = Token(item.at(SAMPLE_FIELD_SAMPLE_TOKEN).get<std::string>());
-    if (sample_tokens.find(item_sample_token) == sample_tokens.end()) {
-      continue;
-    }
     auto prev_token = Token(item.at(SAMPLE_FIELD_PREV).get<std::string>());
-    if (!prev_token.value.empty() && (samples_map_.find(prev_token) == samples_map_.end())) {
+    if (!prev_token.value.empty() && (data_by_token_.find(prev_token) == data_by_token_.end())) {
       waiting_list_.insert(std::move(prev_token));
     }
     auto next_token = Token(item.at(SAMPLE_FIELD_NEXT).get<std::string>());
-    if (!next_token.value.empty() && (samples_map_.find(next_token) == samples_map_.end())) {
+    if (!next_token.value.empty() && (data_by_token_.find(next_token) == data_by_token_.end())) {
       waiting_list_.insert(std::move(next_token));
     }
     const auto token = Token(item.at(SAMPLE_FIELD_TOKEN).get<std::string>());
@@ -100,7 +106,7 @@ void DataSequence::parse_json_(const nlohmann::json& data, const std::unordered_
       prev_token, next_token);
     // Next token will be linked when its sample is added
   }
-  samples_vec_.shrink_to_fit();
+  data_vec_.shrink_to_fit();
 }
 
 }

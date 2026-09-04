@@ -57,9 +57,9 @@ public:
              const std::string& channel, 
              const std::string_view modality);
 
-  const Token& get_token() const noexcept { return TOKEN_; }
-  const std::string& get_channel() const noexcept { return CHANNEL_; }
-  const std::string& get_modality() const noexcept { return MODALITY_; }
+  const auto& get_token() const noexcept { return TOKEN_; }
+  const auto& get_channel() const noexcept { return CHANNEL_; }
+  const auto& get_modality() const noexcept { return MODALITY_; }
   size_t size() const noexcept { return samples_vec_.size(); }
   void add_file(const std::string& filename, const size_t timestamp);
   const DataItem operator[](const size_t index) const;
@@ -80,28 +80,34 @@ public:
   /**
    * @brief Read sensors from a JSON file.
    * @param filename Path to the JSON file.
-   * @param filter_tokens Optional list of sensor tokens to filter sensors.
-   * @details If filter_tokens is provided, only sensors with the specified tokens will be loaded.
    */
-  void read_sensors(const std::string& filename, const std::vector<Token>& filter_tokens = {});
+  void read_sensors(const std::string& filename);
 
+  /**
+   * @brief Add a sensor to the manager.
+   * @param token Token of the sensor.
+   * @param channel Channel name of the sensor.
+   * @param modality Modality of the sensor.
+   */
   void add_sensor(const Token& token, const std::string& channel, const std::string& modality);
 
-  SensorBase& operator[](const Token& token);
-
-  const SensorBase& operator[](const Token& token) const;
-
-  size_t size() const noexcept { return sensors_vec_.size(); }
-
+  /**
+   * @brief Get all sensors.
+   */
+  const auto& get_sensors() const noexcept { return sensors_vec_; }
+  
+  const SensorBase& operator[](const size_t id) const { return *sensors_vec_[id]; }
+  const SensorBase& operator[](const Token& token) const { return *sensors_by_token_.at(token); };
   auto begin() { return sensors_vec_.begin(); }
   auto end() { return sensors_vec_.end(); }
   auto begin() const { return sensors_vec_.begin(); }
   auto end() const { return sensors_vec_.end(); }
   auto cbegin() const { return sensors_vec_.cbegin(); }
   auto cend() const { return sensors_vec_.cend(); }
+  size_t size() const noexcept { return sensors_vec_.size(); }
 
 private:
-  void parse_json_(const nlohmann::json& data, const std::unordered_set<Token>& filter_tokens);
+  void parse_json_(const nlohmann::json& data);
 
 private:
   // Primary storage (maintains insertion order, enables index access)

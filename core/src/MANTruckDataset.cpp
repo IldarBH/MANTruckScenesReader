@@ -12,46 +12,50 @@ namespace {
   constexpr std::string_view DEFAULT_DATA_SAMPLE_FILE = "sample_data.json";
 }
 
-MANTruckDataset::MANTruckDataset(
-  const std::string& datasets_folder, 
-  const std::string& dataset_name, 
-  const Token& scene_token, 
-  const std::vector<Token>& sensor_tokens)
-  : DATASETS_PATH_(datasets_folder)
-  , DATASET_PATH_(DATASETS_PATH_ / dataset_name)
-  {
-    if (!fs::exists(DATASET_PATH_)) {
-      throw std::invalid_argument("Dataset folder '" + DATASET_PATH_.string() + "' doesn't exists");
+MANTruckDataset::MANTruckDataset(const std::string& dataset_folder, const std::string& metadata_folder)
+: DATASET_PATH_(dataset_folder)
+, METADATA_PATH_(DATASET_PATH_ / metadata_folder)
+{
+  if (!fs::exists(METADATA_PATH_)) {
+    throw std::invalid_argument("Metadata path '" + METADATA_PATH_.string() + "' doesn't exists");
+  }
+  // Load scenes
+  const std::string scene_file(METADATA_PATH_ / DEFAULT_SCENE_FILE);
+  scene_manager_.read_scenes(scene_file);
+  // Load calibrations
+  const std::string calibrations_file(METADATA_PATH_ / DEFAULT_CALIBRATION_FILE);
+  calibration_manager_.read_calibrations(calibrations_file);
+  // Load sensors
+  const std::string sensor_file(METADATA_PATH_ / DEFAULT_SENSOR_FILE);
+  sensor_manager_.read_sensors(sensor_file);
+  // Load samples
+  const std::string sample_file(METADATA_PATH_ / DEFAULT_SAMPLE_FILE);
+  sample_manager_.read_samples(sample_file);
+  // Load sample data
+  const std::string sample_data_file(METADATA_PATH_ / DEFAULT_DATA_SAMPLE_FILE);
+  if (!data_manager_.read_samples(sample_data_file)){
+    throw std::runtime_error("Failed to read sample data file: " + sample_data_file);
+  }
+}
+
+std::vector<data_samples::DataSample::WPtr> MANTruckDataset::get_data(const scenes::Scene& scene, const sensors::SensorBase& sensor) const
+{
+  const auto& samples = sample_manager_.get_samples_by_scene(scene.get_token());
+  const auto& calibrated_sensor = calibration_manager_.get_calibration_by_sensor(sensor.get_token());
+
+  std::vector<data_samples::DataSample::WPtr> result;
+  for (const auto& sample : samples) {
+    const auto& data_sample = data_manager_.get_data_by_sample_token(sample.lock()->get_token());
+    if (data_sample.empty()) {
+      continue;
     }
-    const std::string sensor_file(DATASET_PATH_ / DEFAULT_SENSOR_FILE);
-    sensor_manager_.read_sensors(sensor_file, sensor_tokens);
-
-    const std::string calibrations_file(DATASET_PATH_ / DEFAULT_CALIBRATION_FILE);
-    calibration_manager_.read_calibrations(calibrations_file, sensor_tokens);
-
-    const std::string scene_file(DATASET_PATH_ / DEFAULT_SCENE_FILE);
-    scene_manager_.read_scenes(scene_file);
-    const auto& scene = scene_manager_[scene_token];
-
-    const std::string sample_file(DATASET_PATH_ / DEFAULT_SAMPLE_FILE);
-    sample_sequence.read_samples(sample_file, scene.get_token());
-
-    const std::string data_sample_file(DATASET_PATH_ / DEFAULT_DATA_SAMPLE_FILE);
-    data_sequence_.read_samples(data_sample_file, sample_sequence.get_tokens());
-    if (!data_sequence_.is_complete()){
-      throw std::runtime_error("Data samples sequence is not incomplete.");
-    }
-
-    for (const auto data_sample : data_sequence_){
-      const auto& calibrated_sensor_token = data_sample->get_calibrated_sensor_token();
-      if (calibration_manager_.token_exists(calibrated_sensor_token)){
-        const auto& calibrated_sensor = calibration_manager_[calibrated_sensor_token];
-        const auto& sensor_token = calibrated_sensor.get_sensor_token();  
-        auto& sensor = sensor_manager_[Token(sensor_token)];
-        const auto full_filename = DATASETS_PATH_ / data_sample->get_filename();
-        sensor.add_file(full_filename.string(), data_sample->get_timestamp());
+    for (const auto& data : data_sample) {
+      if (data.lock()->get_calibrated_sensor_token() == calibrated_sensor.get_token()) {
+        result.push_back(data);
       }
     }
   }
+  return result;
+}
 
 }

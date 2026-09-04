@@ -15,23 +15,31 @@ namespace man::dataset {
 
 class MANTruckDataset {
 public:
+  /**
+   * @brief Construct a new MANTruckDataset object.
+   * @param dataset_folder Path to the dataset folder
+   * @param metadata_folder Path to the metadata folder
+   */
   MANTruckDataset(
-    const std::string& datasets_folder, 
-    const std::string& dataset_name, 
-    const Token& scene_token,
-    const std::vector<Token>& sensor_tokens = {});
+    const std::string& dataset_folder, 
+    const std::string& metadata_folder);
 
-  const sensors::SensorManager& get_sensor_manager() const noexcept { return sensor_manager_; }
+  auto& get_scene_manager() const noexcept { return scene_manager_; }
+  auto& get_sensor_manager() const noexcept { return sensor_manager_; }
+  auto& get_calibration_manager() const noexcept { return calibration_manager_; }
+  auto& get_sample_manager() const noexcept { return sample_manager_; }
+  auto& get_data_manager() const noexcept { return data_manager_; }
+
+  std::vector<data_samples::DataSample::WPtr> get_data(const scenes::Scene& scene, const sensors::SensorBase& sensor) const;
   
 private:
-  const fs::path DATASETS_PATH_;
   const fs::path DATASET_PATH_;
+  const fs::path METADATA_PATH_;
+  scenes::SceneManager scene_manager_;
   sensors::SensorManager sensor_manager_;
   calibration::CalibrationManager calibration_manager_;
-  
-  scenes::SceneManager scene_manager_;
-  samples::SampleSequence sample_sequence;
-  data_samples::DataSequence data_sequence_;
+  samples::SampleManager sample_manager_;
+  data_samples::DataManager data_manager_;
 };
 
 }
