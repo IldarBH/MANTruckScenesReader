@@ -3,10 +3,52 @@
 namespace man::dataset::sensors {
 
 namespace {
-  constexpr std::string_view TOKEN_KEY = "token";
-  constexpr std::string_view MODALITY_KEY = "modality";
-  constexpr std::string_view CHANNEL_KEY = "channel";
-  constexpr std::string_view LIDAR_MODALITY = "lidar";
+
+constexpr std::string_view TOKEN_KEY = "token";
+constexpr std::string_view MODALITY_KEY = "modality";
+constexpr std::string_view CHANNEL_KEY = "channel";
+
+constexpr std::string_view LIDAR_MODALITY = "lidar";
+constexpr std::string_view CAMERA_MODALITY = "camera";
+constexpr std::string_view RADAR_MODALITY = "radar";
+constexpr std::string_view IMU_MODALITY = "imu";
+
+SensorType resolve_sensor_type(const std::string_view modality) 
+{
+  if (modality == LIDAR_MODALITY) {
+    return SensorType::LIDAR;
+  } else if (modality == CAMERA_MODALITY) {
+    return SensorType::CAMERA;
+  } else if (modality == RADAR_MODALITY) {
+    return SensorType::RADAR;
+  } else if (modality == IMU_MODALITY) {
+    return SensorType::IMU;
+  } else {
+    throw std::invalid_argument("Unknown sensor modality: " + std::string(modality));
+  }
+}
+
+inline std::ostream& operator<<(std::ostream& os, const SensorType type) 
+{
+  switch (type) {
+    case SensorType::LIDAR:
+      os << LIDAR_MODALITY;
+      break;
+    case SensorType::CAMERA:
+      os << CAMERA_MODALITY;
+      break;
+    case SensorType::RADAR:
+      os << RADAR_MODALITY;
+      break;
+    case SensorType::IMU:
+      os << IMU_MODALITY;
+      break;
+    default:
+      os << "UNKNOWN";
+  }
+  return os;
+}
+
 }
 
 DataItem::DataItem(const size_t timestamp, const std::string& filename, const DataItem* prev, const DataItem* next)
@@ -39,8 +81,12 @@ void DataItem::set_next_sample(DataItem* next) noexcept
     next->set_prev_sample(this);
 }
 
-SensorBase::SensorBase(const Token& token, const std::string& channel, const std::string_view modality)
+SensorBase::SensorBase(const Token& token, const std::string& channel, const SensorType modality)
   : TOKEN_(token), CHANNEL_(channel), MODALITY_(modality)
+{}
+
+SensorBase::SensorBase(const Token& token, const std::string& channel, const std::string_view modality)
+  : TOKEN_(token), CHANNEL_(channel), MODALITY_(resolve_sensor_type(modality))
 {}
 
 SensorBase::SensorBase(const std::string& token, const std::string& channel, const std::string_view modality)
@@ -66,17 +112,16 @@ const DataItem SensorBase::operator[](const size_t index) const
   return *samples_vec_[index]; 
 }
 
-std::ostream& operator<<(std::ostream& os, const SensorBase& sensor)
+bool SensorManager::read_sensors(const std::string& filename)
 {
-  os << "Sensor:\n\tToken: " << sensor.TOKEN_ << "\n\tChannel: " << sensor.CHANNEL_ 
-     << "\n\tModality: " << sensor.MODALITY_ << "\n\tFiles cound: " << sensor.samples_vec_.size();
-  return os;
-}
-
-void SensorManager::read_sensors(const std::string& filename)
-{
-  const auto json_file = read_json_file(filename);
-  this->parse_json_(json_file);
+  try {
+    const auto json_file = read_json_file(filename);
+    this->parse_json_(json_file);
+  } catch (const std::exception& e) {
+    std::cerr << "Error reading JSON file: " << e.what() << std::endl;
+    return false;
+  }
+  return true;
 }
 
 void SensorManager::add_sensor(const Token& token, const std::string& channel, const std::string& modality)
@@ -94,6 +139,15 @@ void SensorManager::parse_json_(const nlohmann::json& data)
     const std::string modality(item.at(MODALITY_KEY).get<std::string>());
     this->add_sensor(token, channel, modality);
   }
+}
+
+std::ostream& operator<<(std::ostream& os, const SensorBase& sensor)
+{
+  os << "Sensor:\n\tToken: " << sensor.TOKEN_ 
+     << "\n\tChannel: " << sensor.CHANNEL_ 
+     << "\n\tModality: " << sensor.MODALITY_ 
+     << "\n\tFiles cound: " << sensor.samples_vec_.size();
+  return os;
 }
 
 }

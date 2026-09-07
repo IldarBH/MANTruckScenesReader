@@ -44,10 +44,21 @@ inline bool operator<(const DataItem& a, const DataItem& b) {return a.TIMESTAMP_
 
 inline bool operator<(const DataItem::SPtr& a, const DataItem::SPtr& b) {return *a < *b; }
 
+enum class SensorType {
+  CAMERA,
+  LIDAR,
+  RADAR,
+  IMU,
+};
+
 class SensorBase {
 public:
   using SPtr = std::shared_ptr<SensorBase>;
   using WPtr = std::weak_ptr<SensorBase>;
+
+  SensorBase(const Token& token, 
+             const std::string& channel, 
+             const SensorType modality);
 
   SensorBase(const Token& token, 
              const std::string& channel, 
@@ -67,7 +78,7 @@ public:
 private:
   const Token TOKEN_;
   const std::string CHANNEL_;
-  const std::string MODALITY_;
+  const SensorType MODALITY_;
   std::vector<DataItem::SPtr> samples_vec_;
 };
 
@@ -80,8 +91,9 @@ public:
   /**
    * @brief Read sensors from a JSON file.
    * @param filename Path to the JSON file.
+   * @return True if the sensors were read successfully, false otherwise.
    */
-  void read_sensors(const std::string& filename);
+  bool read_sensors(const std::string& filename);
 
   /**
    * @brief Add a sensor to the manager.
@@ -104,18 +116,18 @@ public:
   auto end() const { return sensors_vec_.end(); }
   auto cbegin() const { return sensors_vec_.cbegin(); }
   auto cend() const { return sensors_vec_.cend(); }
+
+  /**
+   * @brief Get the number of sensors.
+   */
   size_t size() const noexcept { return sensors_vec_.size(); }
 
 private:
   void parse_json_(const nlohmann::json& data);
 
 private:
-  // Primary storage (maintains insertion order, enables index access)
   std::vector<SensorBase::SPtr> sensors_vec_;
-  // Secondary index (token → sensor)
   std::unordered_map<Token, SensorBase::SPtr> sensors_by_token_;
-  // Secondary index (channel → sensor)
-  // std::unordered_map<std::string, SensorBase::SPtr> sensors_by_channel_;
 };
 
 }
