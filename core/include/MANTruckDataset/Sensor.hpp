@@ -44,12 +44,27 @@ inline bool operator<(const DataItem& a, const DataItem& b) {return a.TIMESTAMP_
 
 inline bool operator<(const DataItem::SPtr& a, const DataItem::SPtr& b) {return *a < *b; }
 
-enum class SensorType {
+enum class Modality {
   CAMERA,
   LIDAR,
   RADAR,
   IMU,
 };
+
+/**
+ * @brief Resolve the modality type from a string.
+ * @param modality The string representation of the modality type.
+ * @return The corresponding Modality enum value.
+ */
+Modality resolve_modality_type(const std::string_view modality);
+
+/**
+ * @brief Resolve the modality name from a Modality enum value.
+ * @param modality The Modality enum value.
+ * @return The corresponding string representation of the modality type.
+ */
+std::string resolve_modality_name(const Modality modality);
+
 
 class SensorBase {
 public:
@@ -58,7 +73,7 @@ public:
 
   SensorBase(const Token& token, 
              const std::string& channel, 
-             const SensorType modality);
+             const Modality modality);
 
   SensorBase(const Token& token, 
              const std::string& channel, 
@@ -78,7 +93,7 @@ public:
 private:
   const Token TOKEN_;
   const std::string CHANNEL_;
-  const SensorType MODALITY_;
+  const Modality MODALITY_;
   std::vector<DataItem::SPtr> samples_vec_;
 };
 

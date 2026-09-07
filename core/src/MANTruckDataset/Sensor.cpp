@@ -13,40 +13,9 @@ constexpr std::string_view CAMERA_MODALITY = "camera";
 constexpr std::string_view RADAR_MODALITY = "radar";
 constexpr std::string_view IMU_MODALITY = "imu";
 
-SensorType resolve_sensor_type(const std::string_view modality) 
+inline std::ostream& operator<<(std::ostream& os, const Modality type) 
 {
-  if (modality == LIDAR_MODALITY) {
-    return SensorType::LIDAR;
-  } else if (modality == CAMERA_MODALITY) {
-    return SensorType::CAMERA;
-  } else if (modality == RADAR_MODALITY) {
-    return SensorType::RADAR;
-  } else if (modality == IMU_MODALITY) {
-    return SensorType::IMU;
-  } else {
-    throw std::invalid_argument("Unknown sensor modality: " + std::string(modality));
-  }
-}
-
-inline std::ostream& operator<<(std::ostream& os, const SensorType type) 
-{
-  switch (type) {
-    case SensorType::LIDAR:
-      os << LIDAR_MODALITY;
-      break;
-    case SensorType::CAMERA:
-      os << CAMERA_MODALITY;
-      break;
-    case SensorType::RADAR:
-      os << RADAR_MODALITY;
-      break;
-    case SensorType::IMU:
-      os << IMU_MODALITY;
-      break;
-    default:
-      os << "UNKNOWN";
-  }
-  return os;
+  return os << resolve_modality_name(type);
 }
 
 }
@@ -81,12 +50,12 @@ void DataItem::set_next_sample(DataItem* next) noexcept
     next->set_prev_sample(this);
 }
 
-SensorBase::SensorBase(const Token& token, const std::string& channel, const SensorType modality)
+SensorBase::SensorBase(const Token& token, const std::string& channel, const Modality modality)
   : TOKEN_(token), CHANNEL_(channel), MODALITY_(modality)
 {}
 
 SensorBase::SensorBase(const Token& token, const std::string& channel, const std::string_view modality)
-  : TOKEN_(token), CHANNEL_(channel), MODALITY_(resolve_sensor_type(modality))
+  : TOKEN_(token), CHANNEL_(channel), MODALITY_(resolve_modality_type(modality))
 {}
 
 SensorBase::SensorBase(const std::string& token, const std::string& channel, const std::string_view modality)
@@ -148,6 +117,37 @@ std::ostream& operator<<(std::ostream& os, const SensorBase& sensor)
      << "\n\tModality: " << sensor.MODALITY_ 
      << "\n\tFiles cound: " << sensor.samples_vec_.size();
   return os;
+}
+
+Modality resolve_modality_type(const std::string_view modality) 
+{
+  if (modality == LIDAR_MODALITY) {
+    return Modality::LIDAR;
+  } else if (modality == CAMERA_MODALITY) {
+    return Modality::CAMERA;
+  } else if (modality == RADAR_MODALITY) {
+    return Modality::RADAR;
+  } else if (modality == IMU_MODALITY) {
+    return Modality::IMU;
+  } else {
+    throw std::invalid_argument("Unknown modality modality: " + std::string(modality));
+  }
+}
+
+std::string resolve_modality_name(const Modality modality) 
+{
+  switch (modality) {
+    case Modality::LIDAR:
+      return std::string(LIDAR_MODALITY);
+    case Modality::CAMERA:
+      return std::string(CAMERA_MODALITY);
+    case Modality::RADAR:
+      return std::string(RADAR_MODALITY);
+    case Modality::IMU:
+      return std::string(IMU_MODALITY);
+    default:
+      throw std::invalid_argument("Unknown modality type");
+  }
 }
 
 }

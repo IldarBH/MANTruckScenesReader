@@ -11,6 +11,11 @@ target_link_libraries(
     GTest::gtest_main
     ${PROJECT_NAME}
 )
+target_compile_definitions(
+  ${TEST_PROJECT_NAME} 
+  PUBLIC
+    TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data"
+)
 
 include(GoogleTest)
 gtest_discover_tests(${TEST_PROJECT_NAME})
