@@ -40,7 +40,13 @@ void init_sensor_bindings(py::module &m) {
   py::class_<man_ds::sensors::SensorBase, man_ds::sensors::SensorBase::SPtr> sensor_base(m, "SensorBase",
     "Base class for sensor objects containing data items");
   sensor_base
+    .def(py::init<const man_ds::Token&, const std::string&, const man_ds::sensors::Modality>(),
+      py::arg("token"), py::arg("channel"), py::arg("modality"),
+      "Initialize a SensorBase object")
     .def(py::init<const man_ds::Token&, const std::string&, const std::string_view>(),
+      py::arg("token"), py::arg("channel"), py::arg("modality"),
+      "Initialize a SensorBase object")
+    .def(py::init<const std::string&, const std::string&, const std::string_view>(),
       py::arg("token"), py::arg("channel"), py::arg("modality"),
       "Initialize a SensorBase object")
     .def("get_token", &man_ds::sensors::SensorBase::get_token,
@@ -54,36 +60,34 @@ void init_sensor_bindings(py::module &m) {
     .def("add_file", &man_ds::sensors::SensorBase::add_file,
       py::arg("filename"), py::arg("timestamp"),
       "Add a data file to the sensor")
-    .def("__getitem__", 
-      [](const man_ds::sensors::SensorBase &sensor, const size_t index) {
-        return sensor[index];
-      },
+    .def("__getitem__", &man_ds::sensors::SensorBase::operator[],
       py::arg("index"),
       "Get a data item by index")
     .def("__len__", &man_ds::sensors::SensorBase::size);
 
-  // py::class_<man_ds::sensors::SensorManager> sensor_manager(m, "SensorManager",
-  //   "Manager for handling multiple sensors");
-  // sensor_manager
-  //   .def(py::init<>())
-  //   .def("read_sensors", &man_ds::sensors::SensorManager::read_sensors,
-  //     py::arg("filename"), py::arg("filter_tokens") = std::vector<man_ds::Token>(),
-  //     "Read sensors from a JSON file with optional token filtering")
-  //   .def("add_sensor", &man_ds::sensors::SensorManager::add_sensor,
-  //     py::arg("token"), py::arg("channel"), py::arg("modality"),
-  //     "Add a sensor to the manager")
-  //   .def("size", &man_ds::sensors::SensorManager::size,
-  //     "Get the number of sensors loaded")
-  //   .def("__len__", &man_ds::sensors::SensorManager::size)
-  //   .def("__getitem__", 
-  //     py::overload_cast<const man_ds::Token&>(&man_ds::sensors::SensorManager::operator[]), 
-  //     py::arg("token"),
-  //     py::return_value_policy::reference_internal,
-  //     "Get a sensor by token")
-  //   .def("__iter__",
-  //     [](const man_ds::sensors::SensorManager &sm) {
-  //       return py::make_iterator(sm.cbegin(), sm.cend());
-  //     }, 
-  //     py::keep_alive<0, 1>(),
-  //     "Iterate through all sensors");
+  py::class_<man_ds::sensors::SensorManager> sensor_manager(m, "SensorManager",
+    "Manager for handling multiple sensors");
+  sensor_manager
+    .def(py::init<>())
+    .def("read_sensors", &man_ds::sensors::SensorManager::read_sensors,
+      py::arg("filename"),
+      "Read sensors from a JSON file")
+    .def("add_sensor", py::overload_cast<const man_ds::Token&, const std::string&, const man_ds::sensors::Modality&>(&man_ds::sensors::SensorManager::add_sensor),
+      py::arg("token"), py::arg("channel"), py::arg("modality"),
+      "Add a sensor to the manager")
+    .def("add_sensor", py::overload_cast<const man_ds::Token&, const std::string&, const std::string&>(&man_ds::sensors::SensorManager::add_sensor),
+      py::arg("token"), py::arg("channel"), py::arg("modality"),
+      "Add a sensor to the manager")
+    .def("get_sensors", &man_ds::sensors::SensorManager::get_sensors,
+      py::return_value_policy::reference_internal,
+      "Get all sensors in the manager")
+    .def("size", &man_ds::sensors::SensorManager::size,
+      "Get the number of sensors loaded")
+    .def("__len__", &man_ds::sensors::SensorManager::size)
+    .def("__iter__",
+      [](const man_ds::sensors::SensorManager &sm) {
+        return py::make_iterator(sm.cbegin(), sm.cend());
+      }, 
+      py::keep_alive<0, 1>(),
+      "Iterate through all sensors");
 }

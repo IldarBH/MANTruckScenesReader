@@ -116,8 +116,13 @@ public:
    * @param channel Channel name of the sensor.
    * @param modality Modality of the sensor.
    */
-  void add_sensor(const Token& token, const std::string& channel, const std::string& modality);
+  void add_sensor(const Token& token, const std::string& channel, const Modality& modality);
 
+  /**
+   * @brief Overloaded method to add_sensor()
+   */
+  void add_sensor(const Token& token, const std::string& channel, const std::string& modality);
+  
   /**
    * @brief Get all sensors.
    */

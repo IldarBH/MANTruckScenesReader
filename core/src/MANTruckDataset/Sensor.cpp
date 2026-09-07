@@ -93,11 +93,16 @@ bool SensorManager::read_sensors(const std::string& filename)
   return true;
 }
 
-void SensorManager::add_sensor(const Token& token, const std::string& channel, const std::string& modality)
+void SensorManager::add_sensor(const Token& token, const std::string& channel, const Modality& modality)
 {
   auto sensor = std::make_shared<SensorBase>(token, channel, modality);
   sensors_vec_.emplace_back(sensor);                  // Index based access
   sensors_by_token_[token] = sensor;                  // Index by token
+}
+
+void SensorManager::add_sensor(const Token& token, const std::string& channel, const std::string& modality)
+{
+  this->add_sensor(token, channel, resolve_modality_type(modality));
 }
 
 void SensorManager::parse_json_(const nlohmann::json& data)
