@@ -14,7 +14,7 @@ namespace mands = man::dataset;
 
 namespace{
   constexpr std::string_view TEST_JSON = "scene.json";
-  const std::array<mands::Token, 18> TEST_SCENES_TOKENS = {
+  const std::array<mands::Token, 10> TEST_SCENES_TOKENS = {
     mands::Token("044c648ac12345f1aedf33c9f91cdc5a"),
     mands::Token("37355c547904491481e47accc094d567"),
     mands::Token("81f0a41d0a7a44e0ae8f8ea0ade95fdf"),
