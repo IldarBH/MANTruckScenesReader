@@ -40,7 +40,7 @@ std::ostream& operator<<(std::ostream& os, const Scene& scene)
   return os;
 }
 
-void SceneManager::read_scenes(const std::string& filename)
+size_t SceneManager::read_scenes(const std::string& filename)
 {
   scenes_.clear();
   scenes_map_.clear();
@@ -58,8 +58,8 @@ void SceneManager::read_scenes(const std::string& filename)
         token, first_sample_token, last_sample_token
       );
     }
-    
   }
+  return scenes_.size();
 }
 
 void SceneManager::add_scene(

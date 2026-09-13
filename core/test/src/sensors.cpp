@@ -4,7 +4,6 @@
 #include <gtest/gtest.h>
 
 #include <array>
-#include <filesystem>
 #include <string_view>
 
 #ifndef TEST_DATA_DIR
@@ -14,7 +13,7 @@
 namespace mands = man::dataset;
 
 namespace{
-  constexpr std::string_view TEST_SENSORS_JSON = "sensor.json";
+  constexpr std::string_view TEST_JSON = "sensor.json";
   const std::array<mands::Token, 18> TEST_SENSORS_TOKENS = {
     mands::Token("b3dd3279d239492195f64963ec70b244"),
     mands::Token("c7b216f6c0c2426ea01e20ffb50ecfb0"),
@@ -38,9 +37,9 @@ namespace{
 }
 
 TEST(Sensors, LoadFromJson) {
-  const std::string test_sensor_file = std::string(TEST_DATA_DIR) + "/" + std::string(TEST_SENSORS_JSON);
+  const std::string test_file = std::string(TEST_DATA_DIR) + "/" + std::string(TEST_JSON);
   mands::sensors::SensorManager sensorManager;
-  ASSERT_TRUE(sensorManager.read_sensors(test_sensor_file));
+  ASSERT_TRUE(sensorManager.read_sensors(test_file));
   ASSERT_EQ(sensorManager.size(), TEST_SENSORS_TOKENS.size());
   for (size_t i = 0; i < sensorManager.size(); ++i) {
     const auto& sensor = sensorManager[i];

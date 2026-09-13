@@ -49,8 +49,9 @@ public:
   /**
    * @brief Read scenes from a JSON file.
    * @param filename Path to the JSON file.
+   * @return Number of scenes read.
    */
-  void read_scenes(const std::string& filename);
+  size_t read_scenes(const std::string& filename);
 
   /**
    * @brief Add a scene.
@@ -89,8 +90,8 @@ public:
    */
   const auto& get_scenes() const noexcept { return scenes_; }
 
-  const auto& operator[](const size_t id) const { return scenes_[id]; }
-  const auto& operator[](const Token& token) const { return scenes_map_.at(token); }
+  const Scene& operator[](const size_t id) const { return *scenes_[id]; }
+  const Scene& operator[](const Token& token) const { return *scenes_map_.at(token); }
   auto begin() const noexcept { return scenes_map_.begin(); }
   auto end() const noexcept { return scenes_map_.end(); }
   auto cbegin() const noexcept { return scenes_map_.cbegin(); }
