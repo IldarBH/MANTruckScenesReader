@@ -83,6 +83,12 @@ void init_sensor_bindings(py::module &m) {
       "Get all sensors in the manager")
     .def("size", &man_ds::sensors::SensorManager::size,
       "Get the number of sensors loaded")
+    .def("__getitem__", py::overload_cast<const size_t>(&man_ds::sensors::SensorManager::operator[], py::const_),
+      py::arg("index"),
+      "Get a sensor by index")
+    .def("__getitem__", py::overload_cast<const man_ds::Token&>(&man_ds::sensors::SensorManager::operator[], py::const_),
+      py::arg("token"),
+      "Get a sensor by token")
     .def("__len__", &man_ds::sensors::SensorManager::size)
     .def("__iter__",
       [](const man_ds::sensors::SensorManager &sm) {
