@@ -58,7 +58,7 @@ std::ostream& operator<<(std::ostream& os, const Sample& sample) {
   return os;
 }
 
-void SampleManager::read_samples(const std::string& filename)
+size_t SampleManager::read_samples(const std::string& filename)
 {
   samples_vec_.clear();
   samples_by_token_.clear();
@@ -75,6 +75,7 @@ void SampleManager::read_samples(const std::string& filename)
     this->add_sample(sample_token, item_scene_token, timestamp, prev_token);
     // Next token will be linked when its sample is added
   }
+  return samples_vec_.size();
 }
 
 void SampleManager::add_sample(

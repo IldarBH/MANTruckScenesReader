@@ -11,6 +11,11 @@ target_link_libraries(
     GTest::gtest_main
     ${PROJECT_NAME}
 )
+target_include_directories(
+  ${TEST_PROJECT_NAME}
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
 target_compile_definitions(
   ${TEST_PROJECT_NAME} 
   PUBLIC

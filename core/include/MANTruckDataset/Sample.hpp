@@ -60,8 +60,9 @@ public:
    * Clear existing samples before reading.
    * @param filename Path to the CSV file.
    * @param scene_token Token of the scene to which the samples belong.
+   * @return Number of samples read.
    */
-  void read_samples(const std::string& filename);
+  size_t read_samples(const std::string& filename);
 
   /**
    * @brief Add a sample to the manager.
