@@ -1,5 +1,5 @@
 #pragma once
-#include "MANTruckDataset/Sensor.hpp"
+#include "MANSensors/sensor_manager.hpp"
 #include "MANTruckDataset/Calibration.hpp"
 #include "MANTruckDataset/Sample.hpp"
 #include "MANTruckDataset/Scene.hpp"

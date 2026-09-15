@@ -1,6 +1,7 @@
 # Folders
 build
 .vscode
+.github
 __pycache__
 
 # File extensions

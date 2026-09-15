@@ -1,4 +1,3 @@
-#pragma once
 #include "MANSensors/sensor_manager.hpp"
 #include "MANSensors/sensor.hpp"
 #include "MANTruckDataset/utils.hpp"

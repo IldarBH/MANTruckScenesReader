@@ -1,31 +1,13 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
-#include <MANTruckDataset/Sensor.hpp>
+#include <MANSensors/sensor_manager.hpp>
 #include <MANTruckDataset/utils.hpp>
 
 namespace py = pybind11;
 namespace man_ds = man::dataset;
 
 void init_sensor_bindings(py::module &m) {
-  // TODO: refactore
-  py::class_<man_ds::sensors::DataItem, man_ds::sensors::DataItem::SPtr> data_item(m, "DataItem",
-    "A data item representing a timestamped file in a sensor");
-  data_item
-    .def(py::init<const size_t, const std::string&>(),
-      py::arg("timestamp"), py::arg("filename"),
-      "Initialize a DataItem object")
-    .def("get_timestamp", &man_ds::sensors::DataItem::get_timestamp,
-      "Get the timestamp of the data item")
-    .def("get_filename", &man_ds::sensors::DataItem::get_filename,
-      "Get the filename of the data item")
-    .def("get_prev_sample", &man_ds::sensors::DataItem::get_prev_sample,
-      py::return_value_policy::reference_internal,
-      "Get the previous data item in the sequence")
-    .def("get_next_sample", &man_ds::sensors::DataItem::get_next_sample,
-      py::return_value_policy::reference_internal,
-      "Get the next data item in the sequence");
-
   py::enum_<man_ds::sensors::Modality> modality(m, "Modality", "Enumeration of sensor modalities");
   modality
     .value("CAMERA", man_ds::sensors::Modality::CAMERA)
@@ -35,7 +17,6 @@ void init_sensor_bindings(py::module &m) {
     .def("__str__", [](const man_ds::sensors::Modality &m) {
       return man_ds::sensors::resolve_modality_name(m);
   });
-      
 
   py::class_<man_ds::sensors::SensorBase, man_ds::sensors::SensorBase::SPtr> sensor_base(m, "SensorBase",
     "Base class for sensor objects containing data items");
@@ -54,16 +35,7 @@ void init_sensor_bindings(py::module &m) {
     .def("get_channel", &man_ds::sensors::SensorBase::get_channel,
       "Get the sensor channel")
     .def("get_modality", &man_ds::sensors::SensorBase::get_modality,
-      "Get the sensor modality")
-    .def("size", &man_ds::sensors::SensorBase::size,
-      "Get the number of data items in the sensor")
-    .def("add_file", &man_ds::sensors::SensorBase::add_file,
-      py::arg("filename"), py::arg("timestamp"),
-      "Add a data file to the sensor")
-    .def("__getitem__", &man_ds::sensors::SensorBase::operator[],
-      py::arg("index"),
-      "Get a data item by index")
-    .def("__len__", &man_ds::sensors::SensorBase::size);
+      "Get the sensor modality");
 
   py::class_<man_ds::sensors::SensorManager> sensor_manager(m, "SensorManager",
     "Manager for handling multiple sensors");
@@ -72,12 +44,6 @@ void init_sensor_bindings(py::module &m) {
     .def("read_sensors", &man_ds::sensors::SensorManager::read_sensors,
       py::arg("filename"),
       "Read sensors from a JSON file")
-    .def("add_sensor", py::overload_cast<const man_ds::Token&, const std::string&, const man_ds::sensors::Modality&>(&man_ds::sensors::SensorManager::add_sensor),
-      py::arg("token"), py::arg("channel"), py::arg("modality"),
-      "Add a sensor to the manager")
-    .def("add_sensor", py::overload_cast<const man_ds::Token&, const std::string&, const std::string&>(&man_ds::sensors::SensorManager::add_sensor),
-      py::arg("token"), py::arg("channel"), py::arg("modality"),
-      "Add a sensor to the manager")
     .def("get_sensors", &man_ds::sensors::SensorManager::get_sensors,
       py::return_value_policy::reference_internal,
       "Get all sensors in the manager")

@@ -1,5 +1,5 @@
 #include <MANTruckDataset/utils.hpp>
-#include <MANTruckDataset/Sensor.hpp>
+#include <MANSensors/sensor_manager.hpp>
 
 #include <gtest/gtest.h>
 

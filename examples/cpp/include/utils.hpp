@@ -1,7 +1,7 @@
 #pragma once
 #include <MANTruckDataset/Scene.hpp>
 #include <MANTruckDataset/Sample.hpp>
-#include <MANTruckDataset/Sensor.hpp>
+#include <MANSensors/sensor_manager.hpp>
 
 #include <iostream>
 
@@ -11,7 +11,7 @@ inline auto& select_scene(const man_ds::scenes::SceneManager& scene_manager)
 {
   std::cout << "Select scene to load:" << std::endl;
   for (size_t id = 0; id < scene_manager.size(); ++id){
-    std::cout << id + 1 << ". " << *scene_manager[id] << std::endl;
+    std::cout << id + 1 << ". " << scene_manager[id] << std::endl;
   }
   std::cout << "Enter selection (1-" << scene_manager.size() << "): ";
 
@@ -22,7 +22,7 @@ inline auto& select_scene(const man_ds::scenes::SceneManager& scene_manager)
       std::cerr << "Invalid selection! Try again." << std::endl;
     }
   }
-  return *scene_manager[selection - 1];
+  return scene_manager[selection - 1];
 }
 
 inline const man_ds::samples::Sample& select_sample(const man_ds::samples::SampleManager& sequence)
