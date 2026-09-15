@@ -12,7 +12,7 @@ SensorBase::SensorBase(const Token& token, const std::string& channel, const Mod
 {}
 
 SensorBase::SensorBase(const Token& token, const std::string& channel, const std::string_view modality)
-  : TOKEN_(token), CHANNEL_(channel), MODALITY_(resolve_modality_type(modality))
+  : TOKEN_(token), CHANNEL_(channel), MODALITY_(string_to_modality(modality))
 {}
 
 SensorBase::SensorBase(const std::string& token, const std::string& channel, const std::string_view modality)

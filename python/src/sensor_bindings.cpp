@@ -15,7 +15,7 @@ void init_sensor_bindings(py::module &m) {
     .value("RADAR", man_ds::sensors::Modality::RADAR)
     .value("IMU", man_ds::sensors::Modality::IMU)
     .def("__str__", [](const man_ds::sensors::Modality &m) {
-      return man_ds::sensors::resolve_modality_name(m);
+      return man_ds::sensors::modality_to_string(m);
   });
 
   py::class_<man_ds::sensors::SensorBase, man_ds::sensors::SensorBase::SPtr> sensor_base(m, "SensorBase",

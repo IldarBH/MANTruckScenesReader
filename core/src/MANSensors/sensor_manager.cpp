@@ -46,7 +46,7 @@ void SensorManager::add_sensor_(const Token& token, const std::string& channel, 
 
 void SensorManager::add_sensor_(const Token& token, const std::string& channel, const std::string& modality)
 {
-  this->add_sensor_(token, channel, resolve_modality_type(modality));
+  this->add_sensor_(token, channel, string_to_modality(modality));
 }
 
 }

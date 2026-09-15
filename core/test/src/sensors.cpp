@@ -1,4 +1,5 @@
 #include <MANTruckDataset/utils.hpp>
+#include <MANSensors/modality.hpp>
 #include <MANSensors/sensor_manager.hpp>
 
 #include <gtest/gtest.h>
@@ -45,4 +46,16 @@ TEST(Sensors, LoadFromJson) {
     const auto& sensor = sensorManager[i];
     ASSERT_EQ(sensor.get_token(), TEST_SENSORS_TOKENS[i]);
   }
+}
+
+TEST(Modality, StringConversion) {
+  ASSERT_EQ(mands::sensors::modality_to_string(mands::sensors::Modality::CAMERA), "camera");
+  ASSERT_EQ(mands::sensors::modality_to_string(mands::sensors::Modality::LIDAR), "lidar");
+  ASSERT_EQ(mands::sensors::modality_to_string(mands::sensors::Modality::RADAR), "radar");
+  ASSERT_EQ(mands::sensors::modality_to_string(mands::sensors::Modality::IMU), "imu");
+
+  ASSERT_EQ(mands::sensors::string_to_modality("camera"), mands::sensors::Modality::CAMERA);
+  ASSERT_EQ(mands::sensors::string_to_modality("lidar"), mands::sensors::Modality::LIDAR);
+  ASSERT_EQ(mands::sensors::string_to_modality("radar"), mands::sensors::Modality::RADAR);
+  ASSERT_EQ(mands::sensors::string_to_modality("imu"), mands::sensors::Modality::IMU);
 }

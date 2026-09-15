@@ -18,14 +18,14 @@ enum class Modality {
  * @param modality The string representation of the modality type.
  * @return The corresponding Modality enum value.
  */
-Modality resolve_modality_type(const std::string_view modality);
+Modality string_to_modality(const std::string_view modality);
 
 /**
  * @brief Resolve the modality name from a Modality enum value.
  * @param modality The Modality enum value.
  * @return The corresponding string representation of the modality type.
  */
-std::string resolve_modality_name(const Modality modality);
+std::string modality_to_string(const Modality modality);
 
 std::ostream& operator<<(std::ostream& os, const Modality type);
 

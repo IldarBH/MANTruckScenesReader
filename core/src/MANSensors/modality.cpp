@@ -9,7 +9,7 @@ constexpr std::string_view RADAR_MODALITY = "radar";
 constexpr std::string_view IMU_MODALITY = "imu";
 }
 
-Modality resolve_modality_type(const std::string_view modality) 
+Modality string_to_modality(const std::string_view modality) 
 {
   if (modality == LIDAR_MODALITY) {
     return Modality::LIDAR;
@@ -24,7 +24,7 @@ Modality resolve_modality_type(const std::string_view modality)
   }
 }
 
-std::string resolve_modality_name(const Modality modality) 
+std::string modality_to_string(const Modality modality) 
 {
   switch (modality) {
     case Modality::LIDAR:
@@ -42,7 +42,7 @@ std::string resolve_modality_name(const Modality modality)
 
 std::ostream& operator<<(std::ostream& os, const Modality type) 
 {
-  return os << resolve_modality_name(type);
+  return os << modality_to_string(type);
 }
 
 }
