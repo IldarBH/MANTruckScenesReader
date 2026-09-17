@@ -22,12 +22,11 @@ MANTruckDataset::MANTruckDataset(const std::string& dataset_folder, const std::s
   // Load scenes
   const std::string scene_file(METADATA_PATH_ / DEFAULT_SCENE_FILE);
   scene_manager_.read_scenes(scene_file);
-  // Load calibrations
-  const std::string calibrations_file(METADATA_PATH_ / DEFAULT_CALIBRATION_FILE);
-  calibration_manager_.read_calibrations(calibrations_file);
-  // Load sensors
+  // Load sensors and calibrations
   const std::string sensor_file(METADATA_PATH_ / DEFAULT_SENSOR_FILE);
+  const std::string calibrations_file(METADATA_PATH_ / DEFAULT_CALIBRATION_FILE);
   sensor_manager_.read_sensors(sensor_file);
+  sensor_manager_.read_calibrations(calibrations_file);
   // Load samples
   const std::string sample_file(METADATA_PATH_ / DEFAULT_SAMPLE_FILE);
   sample_manager_.read_samples(sample_file);

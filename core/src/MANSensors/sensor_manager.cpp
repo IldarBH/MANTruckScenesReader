@@ -53,6 +53,7 @@ void SensorManager::parse_calibrations_(const nlohmann::json& data)
     const auto translation = item.at(TRANSLATION_KEY).get<std::vector<double>>();
     const auto rotation = item.at(ROTATION_KEY).get<std::vector<double>>();
     const auto intrinsics = item.at(CAMERA_INTRINSIC_KEY).get<std::vector<std::vector<double>>>();
+    this->add_calibration_(calib_token, sensor_token, translation, rotation, intrinsics);
   }
 }
 

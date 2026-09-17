@@ -1,6 +1,5 @@
 #pragma once
 #include "MANSensors/sensor_manager.hpp"
-#include "MANTruckDataset/Calibration.hpp"
 #include "MANTruckDataset/Sample.hpp"
 #include "MANTruckDataset/Scene.hpp"
 #include "MANTruckDataset/DataSample.hpp"
@@ -26,7 +25,6 @@ public:
 
   auto& get_scene_manager() const noexcept { return scene_manager_; }
   auto& get_sensor_manager() const noexcept { return sensor_manager_; }
-  auto& get_calibration_manager() const noexcept { return calibration_manager_; }
   auto& get_sample_manager() const noexcept { return sample_manager_; }
   auto& get_data_manager() const noexcept { return data_manager_; }
 
@@ -37,7 +35,6 @@ private:
   const fs::path METADATA_PATH_;
   scenes::SceneManager scene_manager_;
   sensors::SensorManager sensor_manager_;
-  calibration::CalibrationManager calibration_manager_;
   samples::SampleManager sample_manager_;
   data_samples::DataManager data_manager_;
 };

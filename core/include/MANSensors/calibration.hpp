@@ -25,7 +25,7 @@ public:
     const Token& sensor_token,
     const std::vector<double>& translation,
     const std::vector<double>& rotation,
-    const std::vector<double>& camera_intrinsic
+    const std::vector<std::vector<double>>& camera_intrinsic
   );
 
   const auto& get_token() const noexcept { return TOKEN_; }
