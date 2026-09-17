@@ -13,7 +13,7 @@ pybind11_add_module(${PROJECT_NAME_PYTHON}
   src/scene_bindings.cpp
   src/sample_bindings.cpp
   src/sensor_bindings.cpp
-  # src/dataset_bindings.cpp
+  src/dataset_bindings.cpp
 )
 target_link_libraries(${PROJECT_NAME_PYTHON}
   PRIVATE

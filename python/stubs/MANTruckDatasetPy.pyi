@@ -99,27 +99,10 @@ class SensorManager:
 
 
 class MANTruckDataset:
-    def __init__(
-        self,
-        datasets_folder: str,
-        dataset_name: str,
-        scene_token: Token,
-        sensor_tokens: Optional[List[Token]] = []
-    ) -> None:
-        """Initialize MANTruckDataset.
-        
-        Args:
-            datasets_folder: Path to datasets root folder
-            dataset_name: Name of the dataset
-            scene_token: Token of the scene to load
-            sensor_tokens: Optional list of sensor tokens to filter
-        """
-        ...
-    
-    def get_sensor_manager(self) -> SensorManager:
-        """Get the sensor manager containing all loaded sensors.
-        
-        Returns:
-            SensorManager instance with all loaded sensors
-        """
-        ...
+    def __init__(self, dataset_folder: str, metadata_folder: str) -> None: ...
+    def get_scene_manager(self) -> SceneManager: ...
+    def get_sensor_manager(self) -> SensorManager: ...
+    # def get_calibration_manager(self) -> CalibrationManager: ...
+    def get_sample_manager(self) -> SampleManager: ...
+    # def get_data_manager(self) -> DataManager: ...
+    # def get_data(self, scene: Scene, sensor: SensorBase) -> List[DataSample]: ...
