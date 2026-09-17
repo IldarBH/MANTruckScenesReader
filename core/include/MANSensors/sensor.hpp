@@ -2,12 +2,16 @@
 #include "MANSensors/modality.hpp"
 #include "MANTruckDataset/utils.hpp"
 
+#include <memory>
+
 namespace man::dataset::sensors {
 
 class SensorBase {
 public:
   using SPtr = std::shared_ptr<SensorBase>;
   using WPtr = std::weak_ptr<SensorBase>;
+
+  SensorBase() = delete;
 
   SensorBase(const Token& token, 
              const std::string& channel, 
@@ -33,5 +37,4 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& os, const SensorBase& sensor);
-
 } // namespace man::dataset::sensors
