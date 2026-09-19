@@ -16,16 +16,9 @@ public:
   Calibration(
     const Token& token,
     const Token& sensor_token,
-    const std::vector<double>& translation,
-    const std::vector<double>& rotation
-  );
-
-  Calibration(
-    const Token& token,
-    const Token& sensor_token,
-    const std::vector<double>& translation,
-    const std::vector<double>& rotation,
-    const std::vector<std::vector<double>>& camera_intrinsic
+    const Eigen::Vector3d& translation,
+    const Eigen::Quaterniond& rotation,
+    const Eigen::Matrix3d& camera_intrinsic = Eigen::Matrix3d::Zero()
   );
 
   const auto& get_token() const noexcept { return TOKEN_; }

@@ -70,7 +70,19 @@ void SensorManager::parse_sensors_(const nlohmann::json& data)
 void SensorManager::add_calibration_(const Token& token, const Token& sensor_token, 
   const std::vector<double>& translation, const std::vector<double>& rotation, const std::vector<std::vector<double>>& camera_matrix)
 {
-  calibrations_vec_.emplace_back(std::make_shared<Calibration>(token, sensor_token, translation, rotation, camera_matrix));    // Index based access
+  const Eigen::Vector3d translation_vec(translation.data());
+  const Eigen::Quaterniond quaternion_vec(rotation.data());
+  if (camera_matrix.empty()) {
+    calibrations_vec_.emplace_back(std::make_shared<Calibration>(token, sensor_token, translation_vec, quaternion_vec));
+  } else {
+    Eigen::Matrix3d camera_intrinsic;
+    for (size_t i = 0; i < 3; ++i) {
+      for (size_t j = 0; j < 3; ++j) {
+        camera_intrinsic(i, j) = camera_matrix[i][j];
+      }
+    }
+    calibrations_vec_.emplace_back(std::make_shared<Calibration>(token, sensor_token, translation_vec, quaternion_vec, camera_intrinsic));    // Index based access
+  }
   calibrations_by_token_[token] = calibrations_vec_.back();                                       // Token based access
 }
 
