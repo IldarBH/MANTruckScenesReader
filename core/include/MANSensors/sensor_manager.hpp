@@ -3,6 +3,8 @@
 #include "MANSensors/calibration.hpp"
 #include "MANTruckDataset/utils.hpp"
 
+#include <nlohmann/json.hpp>
+
 namespace man::dataset::sensors {
 
 class SensorManager {
