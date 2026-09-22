@@ -34,8 +34,8 @@ void Sample::set_prev_sample_(Sample* prev) noexcept
 { 
   if (prev == this)
     return;
-  prev_sample_ = prev;
-  if (prev)
+  this->prev_sample_ = prev;
+  if (prev && (prev->next_sample_ != this))
     prev->set_next_sample_(this);
 }
 
@@ -43,8 +43,8 @@ void Sample::set_next_sample_(Sample* next) noexcept
 { 
   if (next == this)
     return;
-  next_sample_ = next;
-  if (next)
+  this->next_sample_ = next;
+  if (next && (next->prev_sample_ != this))
     next->set_prev_sample_(this);
 }
 
