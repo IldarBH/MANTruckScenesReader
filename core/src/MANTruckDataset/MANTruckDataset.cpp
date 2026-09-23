@@ -27,34 +27,30 @@ MANTruckDataset::MANTruckDataset(const std::string& dataset_folder, const std::s
   const std::string calibrations_file(METADATA_PATH_ / DEFAULT_CALIBRATION_FILE);
   sensor_manager_.read_sensors(sensor_file);
   sensor_manager_.read_calibrations(calibrations_file);
-  // Load samples
+  // Load samples and data items
   const std::string sample_file(METADATA_PATH_ / DEFAULT_SAMPLE_FILE);
+  const std::string data_item_file(METADATA_PATH_ / DEFAULT_DATA_SAMPLE_FILE);
   sample_manager_.read_samples(sample_file);
-  // Load sample data
-  const std::string sample_data_file(METADATA_PATH_ / DEFAULT_DATA_SAMPLE_FILE);
-  if (!data_manager_.read_samples(sample_data_file)){
-    throw std::runtime_error("Failed to read sample data file: " + sample_data_file);
-  }
+  sample_manager_.read_samples_data(data_item_file);
 }
 
-std::vector<data_samples::DataSample::WPtr> MANTruckDataset::get_data(const scenes::Scene& scene, const sensors::SensorBase& sensor) const
+scenes::Scene::SPtr select_scene(const MANTruckDataset& dataset, std::ostream& os, std::istream& is)
 {
-  const auto& samples = sample_manager_.get_samples_by_scene(scene.get_token());
-  const auto& calibrated_sensor = calibration_manager_.get_calibration_by_sensor(sensor.get_token());
+  const auto& scenes = dataset.get_scene_manager().get_scenes();
+  os << "Select scene to load:" << std::endl;
+  for (size_t id = 0; id < scenes.size(); ++id){
+    os << id + 1 << ". " << scenes[id] << std::endl;
+  }
+  os << "Enter selection (1-" << scenes.size() << "): ";
 
-  std::vector<data_samples::DataSample::WPtr> result;
-  for (const auto& sample : samples) {
-    const auto& data_sample = data_manager_.get_data_by_sample_token(sample.lock()->get_token());
-    if (data_sample.empty()) {
-      continue;
-    }
-    for (const auto& data : data_sample) {
-      if (data.lock()->get_calibrated_sensor_token() == calibrated_sensor.get_token()) {
-        result.push_back(data);
-      }
+  size_t selection = 0;
+  while (selection < 1 || selection > scenes.size()){
+    is >> selection;
+    if (selection < 1 || selection > scenes.size()){
+      std::cerr << "Invalid selection! Try again." << std::endl;
     }
   }
-  return result;
+  return scenes[selection - 1];
 }
 
 }
