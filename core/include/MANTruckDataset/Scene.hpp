@@ -8,36 +8,32 @@
 
 namespace man::dataset::scenes {
 
+class Sample; // Forward declaration
+
 class Scene {
 public:
+  using UPtr = std::unique_ptr<Scene>;
   using SPtr = std::shared_ptr<Scene>;
+  using WPtr = std::weak_ptr<Scene>;
 
-  Scene(const std::string& name, 
-        const std::string& description, 
-        const Token& token, 
-        const Token& first_sample_token, 
-        const Token& last_sample_token);
+  Scene(const Token& token,
+        const std::string& name, 
+        const std::string& description);
 
-  Scene(const std::string& name, 
-        const std::string& description, 
-        const std::string& token, 
-        const std::string& first_sample_token, 
-        const std::string& last_sample_token);
+  const auto& get_token() const noexcept { return TOKEN; }
+  const auto& get_name() const noexcept { return NAME; }
+  const auto& get_description() const noexcept { return DESCRIPTION; }
+  std::shared_ptr<Sample> get_first_sample() const { return first_sample_.lock(); }
+  std::shared_ptr<Sample> get_last_sample() const { return last_sample_.lock(); }
+  void set_first_sample(const std::shared_ptr<Sample>& sample) { first_sample_ = sample; }
+  void set_last_sample(const std::shared_ptr<Sample>& sample) { last_sample_ = sample; }
 
-  const auto& get_token() const noexcept { return TOKEN_; }
-  const auto& get_name() const noexcept { return NAME_; }
-  const auto& get_description() const noexcept { return DESCRIPTION_; }
-  const auto& get_first_sample_token() const noexcept { return FIRST_SAMPLE_TOKEN_; }
-  const auto& get_last_sample_token() const noexcept { return LAST_SAMPLE_TOKEN_; }
-
-  friend std::ostream& operator<<(std::ostream& os, const Scene& scene);
+  const Token TOKEN;
+  const std::string NAME;
+  const std::string DESCRIPTION;
 private:
-  const std::string NAME_;
-  const std::string DESCRIPTION_;
-  const Token TOKEN_;
-  const Token FIRST_SAMPLE_TOKEN_;
-  const Token LAST_SAMPLE_TOKEN_;
-private:
+  std::weak_ptr<Sample> first_sample_;
+  std::weak_ptr<Sample> last_sample_;
 };
 
 std::ostream& operator<<(std::ostream& os, const Scene& scene);
@@ -54,50 +50,19 @@ public:
   size_t read_scenes(const std::string& filename);
 
   /**
-   * @brief Add a scene.
-   * Overload that takes string tokens.
-   * @param name Name of the scene.
-   * @param description Description of the scene.
-   * @param token Token of the scene.
-   * @param first_sample_token Token of the first sample in the scene.
-   * @param last_sample_token Token of the last sample in the scene.
-   */
-  void add_scene(
-    const std::string& name, 
-    const std::string& description, 
-    const std::string& token, 
-    const std::string& first_sample_token, 
-    const std::string& last_sample_token);
-
-  /**
-   * @brief Add a scene.
-   * Overload that takes Token objects.
-   * @param name Name of the scene.
-   * @param description Description of the scene.
-   * @param token Token of the scene.
-   * @param first_sample_token Token of the first sample in the scene.
-   * @param last_sample_token Token of the last sample in the scene.
-   */
-  void add_scene(
-    const std::string& name, 
-    const std::string& description, 
-    const Token& token, 
-    const Token& first_sample_token, 
-    const Token& last_sample_token);
-  
-  /**
    * @brief Get all scenes.
    */
   const auto& get_scenes() const noexcept { return scenes_; }
-
-  const Scene& operator[](const size_t id) const { return *scenes_[id]; }
-  const Scene& operator[](const Token& token) const { return *scenes_map_.at(token); }
-  auto begin() const noexcept { return scenes_map_.begin(); }
-  auto end() const noexcept { return scenes_map_.end(); }
-  auto cbegin() const noexcept { return scenes_map_.cbegin(); }
-  auto cend() const noexcept { return scenes_map_.cend(); }
-  auto size() const noexcept { return scenes_map_.size(); }
 private:
+  /**
+   * @brief Add a scene.
+   * Overload that takes Token objects.
+   * @param token Token of the scene.
+   * @param name Name of the scene.
+   * @param description Description of the scene.
+   */
+  void add_scene_(const Token& token, const std::string& name, const std::string& description);
+
   std::vector<Scene::SPtr> scenes_;
   std::unordered_map<Token, Scene::SPtr> scenes_map_;
 };

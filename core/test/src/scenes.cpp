@@ -28,12 +28,13 @@ namespace{
   };
 }
 
-TEST(Scenes, LoadFromJson) {
+TEST(Scenes, ReadScenes) {
   const std::string test_file = std::string(TEST_DATA_DIR) + "/" + std::string(TEST_JSON);
   mands::scenes::SceneManager scenesManager;
   ASSERT_EQ(scenesManager.read_scenes(test_file), TEST_SCENES_TOKENS.size());
-  for (size_t i = 0; i < scenesManager.size(); ++i) {
-    const auto& scene = scenesManager[i];
-    ASSERT_EQ(scene.get_token(), TEST_SCENES_TOKENS[i]);
+  const auto& scenes = scenesManager.get_scenes();
+  ASSERT_EQ(scenes.size(), TEST_SCENES_TOKENS.size());
+  for (size_t i = 0; i < scenes.size(); ++i) {
+    ASSERT_EQ(scenes[i]->get_token(), TEST_SCENES_TOKENS[i]);
   }
 }

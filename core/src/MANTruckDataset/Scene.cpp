@@ -12,31 +12,13 @@ namespace {
   constexpr std::string_view SCENE_FIELD_LAST_SAMPLE_TOKEN = "last_sample_token";
 }
 
-Scene::Scene(
-  const std::string& name, 
-  const std::string& description, 
-  const Token& token, 
-  const Token& first_sample_token, 
-  const Token& last_sample_token)
-: NAME_(name)
-, DESCRIPTION_(description)
-, TOKEN_(token)
-, FIRST_SAMPLE_TOKEN_(first_sample_token)
-, LAST_SAMPLE_TOKEN_(last_sample_token) 
-{}
-
-Scene::Scene(
-  const std::string& name, 
-  const std::string& description, 
-  const std::string& token, 
-  const std::string& first_sample_token, 
-  const std::string& last_sample_token)
-: Scene(name, description, Token(token), Token(first_sample_token), Token(last_sample_token)) 
+Scene::Scene(const Token& token, const std::string& name, const std::string& description)
+: NAME(name), DESCRIPTION(description), TOKEN(token)
 {}
 
 std::ostream& operator<<(std::ostream& os, const Scene& scene) 
 {
-  os << "Scene:\n\tToken: " << scene.TOKEN_.value << "\n\tName: " << scene.NAME_ << "\n\tDescription: " << scene.DESCRIPTION_;
+  os << "Scene:\n\tToken: " << scene.TOKEN.value << "\n\tName: " << scene.NAME << "\n\tDescription: " << scene.DESCRIPTION;
   return os;
 }
 
@@ -50,36 +32,19 @@ size_t SceneManager::read_scenes(const std::string& filename)
   for (const auto& item : data){
     const Token token(item.at(SCENE_FIELD_TOKEN).get<std::string>());
     if (scenes_map_.find(token) == scenes_map_.end()) {
-      const auto first_sample_token = Token(item.at(SCENE_FIELD_FIRST_SAMPLE_TOKEN).get<std::string>());
-      const auto last_sample_token = Token(item.at(SCENE_FIELD_LAST_SAMPLE_TOKEN).get<std::string>());
-      this->add_scene(
-        item.at(SCENE_FIELD_NAME).get<std::string>(), 
-        item.at(SCENE_FIELD_DESCRIPTION).get<std::string>(),
-        token, first_sample_token, last_sample_token
-      );
+      const auto name = item.at(SCENE_FIELD_NAME).get<std::string>();
+      const auto description = item.at(SCENE_FIELD_DESCRIPTION).get<std::string>();
+      // const auto first_sample_token = Token(item.at(SCENE_FIELD_FIRST_SAMPLE_TOKEN).get<std::string>());
+      // const auto last_sample_token = Token(item.at(SCENE_FIELD_LAST_SAMPLE_TOKEN).get<std::string>());
+      this->add_scene_(token, name, description);
     }
   }
   return scenes_.size();
 }
 
-void SceneManager::add_scene(
-  const std::string& name, 
-  const std::string& description, 
-  const std::string& token, 
-  const std::string& first_sample_token, 
-  const std::string& last_sample_token)
+void SceneManager::add_scene_(const Token& token, const std::string& name, const std::string& description)
 {
-  this->add_scene(name, description, Token(token), Token(first_sample_token), Token(last_sample_token));
-}
-
-void SceneManager::add_scene(
-  const std::string& name, 
-  const std::string& description, 
-  const Token& token, 
-  const Token& first_sample_token, 
-  const Token& last_sample_token)
-{
-  scenes_.emplace_back(std::make_shared<Scene>(name, description, token, first_sample_token, last_sample_token));
+  scenes_.emplace_back(std::make_shared<Scene>(token, name, description));
   scenes_map_.emplace(token, scenes_.back());
 }
 
