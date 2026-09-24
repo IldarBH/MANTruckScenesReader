@@ -1,7 +1,7 @@
 #pragma once
 #include "MANSensors/sensor_manager.hpp"
 #include "MANSamples/sample_manager.hpp"
-#include "MANTruckDataset/Scene.hpp"
+#include "MANScenes/scene_manager.hpp"
 #include "MANTruckDataset/utils.hpp"
 
 #include <string>

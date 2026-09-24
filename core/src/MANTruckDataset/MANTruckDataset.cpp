@@ -1,6 +1,7 @@
 #include "MANTruckDataset/MANTruckDataset.hpp"
 
 #include <string_view>
+#include <unordered_map>
 
 namespace man::dataset {
 
@@ -37,9 +38,11 @@ MANTruckDataset::MANTruckDataset(const std::string& dataset_folder, const std::s
 scenes::Scene::SPtr select_scene(const MANTruckDataset& dataset, std::ostream& os, std::istream& is)
 {
   const auto& scenes = dataset.get_scene_manager().get_scenes();
+  std::unordered_map<size_t, scenes::Scene::WPtr> scene_map;
   os << "Select scene to load:" << std::endl;
-  for (size_t id = 0; id < scenes.size(); ++id){
-    os << id + 1 << ". " << scenes[id] << std::endl;
+  for (const auto& scene : scenes) {
+    const auto [iter, res] = scene_map.emplace(std::make_pair(scene_map.size(), scene));
+    os << iter->first << ". " << *(iter->second.lock()) << std::endl;
   }
   os << "Enter selection (1-" << scenes.size() << "): ";
 
@@ -50,7 +53,7 @@ scenes::Scene::SPtr select_scene(const MANTruckDataset& dataset, std::ostream& o
       std::cerr << "Invalid selection! Try again." << std::endl;
     }
   }
-  return scenes[selection - 1];
+  return scene_map.at(selection - 1).lock();
 }
 
 }
