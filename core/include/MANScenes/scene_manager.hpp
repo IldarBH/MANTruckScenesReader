@@ -8,6 +8,18 @@
 
 namespace man::dataset::scenes {
 
+struct SceneHash {
+  size_t operator()(const Scene::SPtr& scene) const noexcept {
+    return std::hash<man::dataset::Token>()(scene->TOKEN);
+  }
+};
+
+struct SceneEqual {
+  bool operator()(const Scene::SPtr& lhs, const Scene::SPtr& rhs) const noexcept {
+    return lhs->TOKEN == rhs->TOKEN;
+  }
+};
+
 class SceneManager {
 public:
   SceneManager() = default;
@@ -24,6 +36,6 @@ public:
    */
   const auto& get_scenes() const noexcept { return scenes_; }
 private:
-  std::unordered_set<Scene::SPtr> scenes_;
+  std::unordered_set<Scene::SPtr, SceneHash, SceneEqual> scenes_;
 };
 }

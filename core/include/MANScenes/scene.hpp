@@ -42,14 +42,3 @@ inline std::ostream& operator<<(std::ostream& os, const Scene& scene)
 }
 
 } // namespace man::dataset::scenes
-
-namespace std{
-
-template<>
-struct hash<man::dataset::scenes::Scene::SPtr> {
-  size_t operator()(const man::dataset::scenes::Scene::SPtr& scene) const {
-    return std::hash<man::dataset::Token>()(scene->TOKEN);
-  }
-};
-
-} // namespace std
