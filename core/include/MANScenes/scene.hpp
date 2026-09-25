@@ -5,6 +5,7 @@
 #include <string>
 #include <ostream>
 #include <functional>
+#include <unordered_set>
 
 namespace man::dataset::scenes {
 
