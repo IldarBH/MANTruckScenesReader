@@ -35,6 +35,36 @@ private:
   std::weak_ptr<Sample> last_sample_;
 };
 
+struct SceneHash {
+  using is_transparent = void; // Required for C++20 heterogeneous lookup
+
+  size_t operator()(const Scene::SPtr& scene) const noexcept {
+    return std::hash<man::dataset::Token>()(scene->TOKEN);
+  }
+
+  size_t operator()(const Token& token) const noexcept {
+    return std::hash<man::dataset::Token>()(token);
+  }
+};
+
+struct SceneEqual {
+  using is_transparent = void; // Required for C++20 heterogeneous lookup
+
+  bool operator()(const Scene::SPtr& lhs, const Scene::SPtr& rhs) const noexcept {
+    return lhs->TOKEN == rhs->TOKEN;
+  }
+
+  bool operator()(const Scene::SPtr& lhs, const Token& rhs) const noexcept {
+    return lhs->TOKEN == rhs;
+  }
+
+  bool operator()(const Token& lhs, const Scene::SPtr& rhs) const noexcept {
+    return lhs == rhs->TOKEN;
+  }
+};
+
+using SceneSet = std::unordered_set<Scene::SPtr, SceneHash, SceneEqual>;
+
 inline std::ostream& operator<<(std::ostream& os, const Scene& scene)
 {
   os << "Scene:\n\tToken: " << scene.TOKEN.value << "\n\tName: " << scene.NAME << "\n\tDescription: " << scene.DESCRIPTION;
