@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <nlohmann/json.hpp>
 
 namespace man::dataset::samples {
@@ -24,19 +25,23 @@ public:
   size_t read_samples(const std::string& filename);
 
   /**
+   * @brief Read samples from a json file and add them to the manager.
+   * Clear existing samples before reading.
+   * @param filename Path to the CSV file.
+   * @param scenes SceneSet to filter samples by scene tokens.
+   * @return Number of samples read.
+   */
+  size_t read_samples(const std::string& filename, const scenes::SceneSet& scenes);
+
+  /**
    * @brief Read sample data from a CSV file and add them to the manager.
    * Clear existing samples before reading.
    * @param filename Path to the CSV file.
    * @return Number of samples read.
    */
   size_t read_samples_data(const std::string& filename);
-  
-  auto begin() noexcept { return samples_vec_.begin(); }
-  auto end() noexcept { return samples_vec_.end(); }
-  auto cbegin() const noexcept { return samples_vec_.cbegin(); }
-  auto cend() const noexcept { return samples_vec_.cend(); }
-  size_t size() const noexcept { return samples_vec_.size(); }
 
+  const auto& get_samples() const { return samples_; }
 private:
   void add_sample_(const Token& token, 
                    const Token& scene_token, 
@@ -52,13 +57,10 @@ private:
                       const uint64_t timestamp, 
                       const Token& prev_token, 
                       const Token& next_token);
-  void parse_samples_(const nlohmann::json& data);
   void parse_data_items_(const nlohmann::json& data);
 
 
-  std::vector<Sample::SPtr> samples_vec_;
-  std::unordered_map<Token, Sample::SPtr> samples_by_token_;
-  std::unordered_map<Token, std::vector<Sample::SPtr>> samples_by_scene_token_;
+  std::unordered_set<Sample::SPtr, SampleHash, SampleEqual> samples_;
 
   std::vector<DataItem::SPtr> data_items_vec_;
   std::unordered_map<Token, DataItem::SPtr> data_items_by_token_;

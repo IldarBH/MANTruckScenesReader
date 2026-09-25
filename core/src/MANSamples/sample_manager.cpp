@@ -20,15 +20,23 @@ namespace {
 
 size_t SampleManager::read_samples(const std::string& filename)
 {
-  samples_vec_.clear();
-  samples_by_token_.clear();
-  samples_by_scene_token_.clear();
+  return this->read_samples(filename, {});
+}
+
+size_t SampleManager::read_samples(const std::string& filename, const scenes::SceneSet& scenes)
+{
+  samples_.clear();
   const auto data = read_json_file(filename);
-  samples_vec_.reserve(data.size());
-  samples_by_token_.reserve(data.size());
-  samples_by_scene_token_.reserve(data.size());
-  this->parse_samples_(data);
-  return samples_vec_.size();
+  samples_.reserve(data.size());
+  for (const auto& item : data) {
+    const Token token(item.at(SAMPLE_FIELD_TOKEN).get<std::string>());
+    const Token scene_token(item.at(SAMPLE_FIELD_SCENE_TOKEN).get<std::string>());
+    const Token prev_token(item.at(SAMPLE_FIELD_PREV).get<std::string>());
+    const Token next_token(item.at(SAMPLE_FIELD_NEXT).get<std::string>());
+    const size_t timestamp = item.at(SAMPLE_FIELD_TIMESTAMP).get<int64_t>();
+    this->add_sample_(token, scene_token, timestamp, prev_token, next_token);
+  }
+  return samples_.size();
 }
 
 size_t SampleManager::read_samples_data(const std::string& filename)
@@ -47,30 +55,24 @@ size_t SampleManager::read_samples_data(const std::string& filename)
 void SampleManager::add_sample_(const Token& token, const Token& scene_token, const int64_t timestamp, 
   const Token& prev_token, const Token& next_token)
 {
-  if (samples_by_token_.find(token) != samples_by_token_.end()) {
+  if (samples_.find(token) != samples_.end()) {
     throw std::invalid_argument("Sample with token " + token.value + " already exists.");
   }
 
   Sample* prev_sample = nullptr;
   if (!prev_token.value.empty()) {
-    if (const auto& iter = samples_by_token_.find(prev_token); iter != samples_by_token_.end()) {
-      prev_sample = iter->second.get();
+    if (const auto& iter = samples_.find(prev_token); iter != samples_.end()) {
+      prev_sample = iter->get();
     }
   }
   Sample* next_sample = nullptr;
   if (!next_token.value.empty()) {
-    if (const auto& iter = samples_by_token_.find(next_token); iter != samples_by_token_.end()) {
-      next_sample = iter->second.get();
+    if (const auto& iter = samples_.find(next_token); iter != samples_.end()) {
+      next_sample = iter->get();
     }
   }
 
-  samples_vec_.emplace_back(std::make_shared<Sample>(token, scene_token, timestamp, prev_sample, next_sample));
-  samples_by_token_.emplace(std::make_pair(token, samples_vec_.back()));
-  if (auto iter = samples_by_scene_token_.find(scene_token); iter == samples_by_scene_token_.end()) {
-    samples_by_scene_token_[scene_token] = {samples_vec_.back()};
-  } else {
-    iter->second.push_back(samples_vec_.back());
-  }
+  samples_.emplace(std::make_shared<Sample>(token, scene_token, timestamp, prev_sample, next_sample));
 }
 
 void SampleManager::add_data_item_(const Token& token, const Token& sample_token, const Token& ego_pose_token, const Token& calibrated_sensor_token,
@@ -100,18 +102,6 @@ void SampleManager::add_data_item_(const Token& token, const Token& sample_token
     data_items_by_sample_token_[sample_token] = {data_items_vec_.back()};
   } else {
     iter->second.push_back(data_items_vec_.back());
-  }
-}
-
-void SampleManager::parse_samples_(const nlohmann::json& data)
-{
-  for (const auto& item : data) {
-    const Token token(item.at(SAMPLE_FIELD_TOKEN).get<std::string>());
-    const Token scene_token(item.at(SAMPLE_FIELD_SCENE_TOKEN).get<std::string>());
-    const Token prev_token(item.at(SAMPLE_FIELD_PREV).get<std::string>());
-    const Token next_token(item.at(SAMPLE_FIELD_NEXT).get<std::string>());
-    const size_t timestamp = item.at(SAMPLE_FIELD_TIMESTAMP).get<int64_t>();
-    this->add_sample_(token, scene_token, timestamp, prev_token, next_token);
   }
 }
 

@@ -5,7 +5,7 @@ namespace man::dataset::samples {
 
 Sample::Sample(const Token& token, const Token& scene_token, const int64_t timestamp, 
   Sample* prev_sample, Sample* next_sample)
-: TOKEN_(token), SCENE_TOKEN_(scene_token), TIMESTAMP_(timestamp)
+: TOKEN(token), SCENE_TOKEN(scene_token), TIMESTAMP(timestamp)
 {
   if (prev_sample)
     this->set_prev_sample_(prev_sample);
@@ -14,7 +14,7 @@ Sample::Sample(const Token& token, const Token& scene_token, const int64_t times
 }
 
 Sample::Sample(const Sample& other)
-: TOKEN_(other.TOKEN_), SCENE_TOKEN_(other.SCENE_TOKEN_), TIMESTAMP_(other.TIMESTAMP_)
+: TOKEN(other.TOKEN), SCENE_TOKEN(other.SCENE_TOKEN), TIMESTAMP(other.TIMESTAMP)
 {
   if (other.prev_sample_)
     this->set_prev_sample_(other.prev_sample_);
@@ -48,12 +48,4 @@ void Sample::set_next_sample_(Sample* next) noexcept
     next->set_prev_sample_(this);
 }
 
-std::ostream& operator<<(std::ostream& os, const Sample& sample) {
-  os << "Sample:"
-     << "\n\tToken: " << sample.TOKEN_
-     << "\n\tScene token: " << sample.SCENE_TOKEN_
-     << "\n\tTimestamp: " << sample.TIMESTAMP_;
-  return os;
-}
-
-}
+} // namespace man::dataset::samples

@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <ostream>
-#include <unordered_set>
+#include <functional>
 
 namespace man::dataset::scenes {
 
