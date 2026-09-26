@@ -24,6 +24,8 @@ public:
    * @brief Get all scenes.
    */
   const auto& get_scenes() const noexcept { return scenes_; }
+
+  friend samples::SampleManager;
 private:
   SceneSet scenes_;
 };

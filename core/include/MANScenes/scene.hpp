@@ -7,9 +7,13 @@
 #include <functional>
 #include <unordered_set>
 
-namespace man::dataset::scenes {
+namespace man::dataset::samples {
+  // Forward declarations
+  class Sample; 
+  class SampleManager;
+}
 
-class Sample; // Forward declaration
+namespace man::dataset::scenes {
 
 class Scene {
 public:
@@ -19,21 +23,23 @@ public:
 
   Scene() = delete;
   
-  Scene(const Token& token, const std::string& name = "", const std::string& description = "")
+  Scene(const Token& token, 
+        const std::string& name = "", 
+        const std::string& description = "")
   : NAME(name), DESCRIPTION(description), TOKEN(token)
   {}
 
-  std::shared_ptr<Sample> get_first_sample() const { return first_sample_.lock(); }
-  std::shared_ptr<Sample> get_last_sample() const { return last_sample_.lock(); }
-  void set_first_sample(const std::shared_ptr<Sample>& sample) { first_sample_ = sample; }
-  void set_last_sample(const std::shared_ptr<Sample>& sample) { last_sample_ = sample; }
+  std::shared_ptr<samples::Sample> get_first_sample() const { return first_sample_.lock(); }
+  std::shared_ptr<samples::Sample> get_last_sample() const { return last_sample_.lock(); }
+  void set_first_sample(const std::shared_ptr<samples::Sample>& sample) { first_sample_ = sample; }
+  void set_last_sample(const std::shared_ptr<samples::Sample>& sample) { last_sample_ = sample; }
 
   const Token TOKEN;
   const std::string NAME;
   const std::string DESCRIPTION;
 private:
-  std::weak_ptr<Sample> first_sample_;
-  std::weak_ptr<Sample> last_sample_;
+  std::weak_ptr<samples::Sample> first_sample_;
+  std::weak_ptr<samples::Sample> last_sample_;
 };
 
 struct SceneHash {
